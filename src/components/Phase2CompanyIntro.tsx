@@ -1350,7 +1350,16 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                 <div className="max-w-6xl mx-auto">
                     {/* セクションヘッダー */}
                     <div className={`text-center mb-8 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-                        <div className="flex justify-end items-center mb-4 max-w-4xl mx-auto px-4">
+                        <div className="flex justify-between items-center mb-4 max-w-4xl mx-auto px-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={onBack}
+                                className="text-gray-500 hover:text-primary transition-colors"
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                戻る
+                            </Button>
                             <Button
                                 variant="ghost"
                                 size="sm"

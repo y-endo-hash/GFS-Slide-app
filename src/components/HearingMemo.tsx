@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles, Lock } from "lucide-react";
+import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles } from "lucide-react";
 import { UserInput, SimulationResult } from "@/types";
 import { formatPercent } from "@/lib/simulation";
 
@@ -25,13 +25,12 @@ export default function HearingMemo({
     isHearingComplete
 }: HearingMemoProps) {
     const [activeTab, setActiveTab] = useState<"summary" | "memo">("memo");
-    const [showRate, setShowRate] = useState(false);
+    const [isRateVisible, setIsRateVisible] = useState(false);
 
     // Force memo tab if hearing is not complete
     useEffect(() => {
         if (!isHearingComplete) {
             setActiveTab("memo");
-            setShowRate(false);
         }
     }, [isHearingComplete]);
 
@@ -133,30 +132,35 @@ export default function HearingMemo({
                                 {simulationResult && (
                                     <div className="pt-4 border-t border-slate-100">
                                         <button
-                                            onClick={() => setShowRate(!showRate)}
-                                            className={`w-full p-4 rounded-2xl shadow-lg transition-all duration-500 flex items-center justify-between gap-3 group ${showRate ? "bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-100/50" : "bg-slate-100 border border-slate-200 hover:bg-slate-200"}`}
+                                            onClick={() => setIsRateVisible(!isRateVisible)}
+                                            className="w-full text-left transition-all duration-300 transform active:scale-95"
                                         >
-                                            <div className="flex items-center gap-2">
-                                                <Target className={`w-4 h-4 ${showRate ? "text-white/80" : "text-slate-400"}`} />
-                                                <p className={`text-[11px] font-black tracking-widest leading-none ${showRate ? "text-white" : "text-slate-500"}`}>
-                                                    {userData?.name}様に必要な年利
-                                                </p>
-                                            </div>
-                                            <div className="shrink-0">
-                                                {showRate ? (
-                                                    <p className="text-xl font-black text-white tracking-tighter animate-in zoom-in duration-300">
-                                                        {formatPercent(simulationResult.requiredAnnualRate)}
+                                            <div className="p-4 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-100/50 flex items-center justify-between gap-3 relative overflow-hidden group">
+                                                <div className="flex items-center gap-2">
+                                                    <Target className="w-4 h-4 text-white/80" />
+                                                    <p className="text-[11px] font-black text-white tracking-widest leading-none">
+                                                        {userData?.name}様に必要な年利
                                                     </p>
-                                                ) : (
-                                                    <div className="flex items-center gap-1 text-slate-400 group-hover:text-slate-600">
-                                                        <Lock className="w-3.5 h-3.5" />
-                                                        <span className="text-xs font-black tracking-tighter">? ? . ? %</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-xl font-black text-white tracking-tighter shrink-0">
+                                                        {isRateVisible ? formatPercent(simulationResult.requiredAnnualRate) : "??.%"}
+                                                    </p>
+                                                    {!isRateVisible && (
+                                                        <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                                                    )}
+                                                </div>
+
+                                                {/* Hidden Hint */}
+                                                {!isRateVisible && (
+                                                    <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <span className="text-[10px] text-white font-black tracking-widest">CLICK TO REVEAL</span>
                                                     </div>
                                                 )}
                                             </div>
                                         </button>
                                         <p className="mt-2 text-center text-[9px] font-black text-slate-400 italic">
-                                            GOAL: {showRate ? formatPercent(simulationResult.requiredAnnualRate) : "??? %"}
+                                            GOAL: {isRateVisible ? formatPercent(simulationResult.requiredAnnualRate) : "??.%"}
                                         </p>
                                     </div>
                                 )}

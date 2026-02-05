@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles } from "lucide-react";
+import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles, Lock } from "lucide-react";
 import { UserInput, SimulationResult } from "@/types";
 import { formatPercent } from "@/lib/simulation";
 
@@ -25,11 +25,13 @@ export default function HearingMemo({
     isHearingComplete
 }: HearingMemoProps) {
     const [activeTab, setActiveTab] = useState<"summary" | "memo">("memo");
+    const [showRate, setShowRate] = useState(false);
 
     // Force memo tab if hearing is not complete
     useEffect(() => {
         if (!isHearingComplete) {
             setActiveTab("memo");
+            setShowRate(false);
         }
     }, [isHearingComplete]);
 
@@ -130,19 +132,31 @@ export default function HearingMemo({
 
                                 {simulationResult && (
                                     <div className="pt-4 border-t border-slate-100">
-                                        <div className="p-4 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-100/50 flex items-center justify-between gap-3">
+                                        <button
+                                            onClick={() => setShowRate(!showRate)}
+                                            className={`w-full p-4 rounded-2xl shadow-lg transition-all duration-500 flex items-center justify-between gap-3 group ${showRate ? "bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-100/50" : "bg-slate-100 border border-slate-200 hover:bg-slate-200"}`}
+                                        >
                                             <div className="flex items-center gap-2">
-                                                <Target className="w-4 h-4 text-white/80" />
-                                                <p className="text-[11px] font-black text-white tracking-widest leading-none">
+                                                <Target className={`w-4 h-4 ${showRate ? "text-white/80" : "text-slate-400"}`} />
+                                                <p className={`text-[11px] font-black tracking-widest leading-none ${showRate ? "text-white" : "text-slate-500"}`}>
                                                     {userData?.name}様に必要な年利
                                                 </p>
                                             </div>
-                                            <p className="text-xl font-black text-white tracking-tighter shrink-0">
-                                                {formatPercent(simulationResult.requiredAnnualRate)}
-                                            </p>
-                                        </div>
+                                            <div className="shrink-0">
+                                                {showRate ? (
+                                                    <p className="text-xl font-black text-white tracking-tighter animate-in zoom-in duration-300">
+                                                        {formatPercent(simulationResult.requiredAnnualRate)}
+                                                    </p>
+                                                ) : (
+                                                    <div className="flex items-center gap-1 text-slate-400 group-hover:text-slate-600">
+                                                        <Lock className="w-3.5 h-3.5" />
+                                                        <span className="text-xs font-black tracking-tighter">? ? . ? %</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </button>
                                         <p className="mt-2 text-center text-[9px] font-black text-slate-400 italic">
-                                            GOAL: {formatPercent(simulationResult.requiredAnnualRate)}
+                                            GOAL: {showRate ? formatPercent(simulationResult.requiredAnnualRate) : "??? %"}
                                         </p>
                                     </div>
                                 )}

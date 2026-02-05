@@ -1,0 +1,18 @@
+# Ignore archive files
+*.zip
+*.pptx
+*.pdf
+
+# Ignore backup directories
+gfs_project_backup/
+gfs_static_export/
+project_backup_latest/
+
+# Ignore Next.js files
+.next/
+out/
+
+# Ignore local dev files
+node_modules/
+.env*
+.DS_Store

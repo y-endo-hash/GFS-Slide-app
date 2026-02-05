@@ -21,6 +21,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [hoveredProgram, setHoveredProgram] = useState<number | null>(null);
+    const [showExteriorOverlay, setShowExteriorOverlay] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // スライドが切り替わったときにコンテナ内をトップにスクロール
@@ -247,27 +248,33 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                 </div>
                             </div>
 
-                            {/* Great Place to Work画像 */}
-                            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border-2 border-blue-300 shadow-lg">
+                            {/* 会社の外観コンテナ */}
+                            <button
+                                onClick={() => setShowExteriorOverlay(true)}
+                                className="w-full bg-white/80 backdrop-blur-sm rounded-2xl p-4 border-2 border-blue-300 shadow-lg hover:bg-blue-50/80 transition-all duration-300 group cursor-pointer text-left"
+                            >
                                 <div className="flex items-center gap-4">
                                     <div className="relative w-32 h-24 rounded-lg overflow-hidden shadow-md flex-shrink-0">
                                         <Image
-                                            src="/slides/office_gptw.jpg"
-                                            alt="Great Place to Work認定"
+                                            src="/images/company_exterior.jpg"
+                                            alt="会社の外観"
                                             fill
-                                            className="object-cover"
+                                            className="object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
+                                        <div className="absolute inset-0 bg-blue-600/10 group-hover:bg-transparent transition-colors"></div>
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-lg md:text-xl font-bold text-gray-800 mb-1">
-                                            2022年・2023年
+                                        <p className="text-xl md:text-2xl font-black text-blue-900 mb-1 flex items-center gap-2">
+                                            会社の外観
+                                            <Sparkles className="w-4 h-4 text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </p>
-                                        <p className="text-sm md:text-base text-blue-700 font-semibold">
-                                            「働きがいのある会社」<br />連続認定
+                                        <p className="text-sm md:text-base text-blue-700 font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                            タップして大きな写真を見る
+                                            <ArrowRight className="w-4 h-4" />
                                         </p>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         </div>
 
                         {/* 右側: CMキャラクター画像 */}
@@ -1472,6 +1479,35 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                     </div>
                 </div>
             </div>
+
+            {/* 会社の外観オーバーレイ */}
+            {showExteriorOverlay && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 p-4 md:p-8 cursor-pointer"
+                    onClick={() => setShowExteriorOverlay(false)}
+                >
+                    <div className="relative w-full max-w-5xl h-full max-h-[90vh] flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
+                            <Image
+                                src="/images/company_exterior.jpg"
+                                alt="会社の外観 大画像"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <button
+                            className="mt-6 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/30 font-bold transition-all"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowExteriorOverlay(false);
+                            }}
+                        >
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -135,14 +135,7 @@ export default function Home() {
         />
       )}
 
-      {/* Persistent Panels */}
-      {userData && (
-        <SupportPanel
-          userData={userData}
-          isOpen={isSupportOpen}
-          onToggle={() => setIsSupportOpen(!isSupportOpen)}
-        />
-      )}
+      {/* Persistent Panels (Support Panel is now handled via separate window in HearingMemo) */}
 
       <HearingMemo
         userData={userData}

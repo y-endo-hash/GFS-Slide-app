@@ -9,9 +9,10 @@ interface SupportPanelProps {
     userData: UserInput;
     isOpen: boolean;
     onToggle: () => void;
+    isStandalone?: boolean;
 }
 
-export default function SupportPanel({ userData, isOpen, onToggle }: SupportPanelProps) {
+export default function SupportPanel({ userData, isOpen, onToggle, isStandalone = false }: SupportPanelProps) {
     const [activeTab, setActiveTab] = useState<"glossary" | "qa">("glossary");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
@@ -23,11 +24,14 @@ export default function SupportPanel({ userData, isOpen, onToggle }: SupportPane
 
     return (
         <div
-            className={`fixed top-1/2 -translate-y-1/2 left-0 z-50 transition-all duration-500 transform ${isOpen ? "translate-x-0" : "translate-x-[calc(-100%+40px)]"}`}
+            className={isStandalone
+                ? "w-full h-screen bg-slate-50 relative overflow-hidden flex flex-col"
+                : `fixed top-1/2 -translate-y-1/2 left-0 z-50 transition-all duration-500 transform ${isOpen ? "translate-x-0" : "translate-x-[calc(-100%+40px)]"}`
+            }
         >
-            <div className="flex items-stretch shadow-2xl h-[80vh]">
-                {/* メモ内容 */}
-                <div className="w-[450px] bg-white/95 backdrop-blur-xl border-r border-slate-200 h-full overflow-hidden flex flex-col rounded-r-3xl">
+            <div className={`flex items-stretch ${isStandalone ? "h-full" : "shadow-2xl h-[80vh]"}`}>
+                {/* 内容 */}
+                <div className={`${isStandalone ? "w-full" : "w-[450px] rounded-r-3xl"} bg-white/95 backdrop-blur-xl border-r border-slate-200 h-full overflow-hidden flex flex-col`}>
                     {/* Header */}
                     <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
                         <div className="flex items-center justify-between mb-6">
@@ -51,12 +55,14 @@ export default function SupportPanel({ userData, isOpen, onToggle }: SupportPane
                                     </div>
                                 </div>
                             </div>
-                            <button
-                                onClick={onToggle}
-                                className="p-2 hover:bg-white/50 rounded-full transition-colors text-slate-400"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
+                            {!isStandalone && (
+                                <button
+                                    onClick={onToggle}
+                                    className="p-2 hover:bg-white/50 rounded-full transition-colors text-slate-400"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            )}
                         </div>
 
                         {/* Tabs */}
@@ -199,13 +205,15 @@ export default function SupportPanel({ userData, isOpen, onToggle }: SupportPane
                 </div>
 
                 {/* 開閉ボタン（縦の帯） */}
-                <button
-                    onClick={onToggle}
-                    className="w-10 bg-blue-600 text-white flex flex-col items-center justify-center gap-4 py-8 rounded-r-2xl hover:bg-blue-700 transition-colors cursor-pointer group shadow-xl"
-                >
-                    <HelpCircle className={`w-5 h-5 transition-transform duration-500 ${isOpen ? "rotate-180" : ""}`} />
-                    <span className="[writing-mode:vertical-rl] font-black text-[10px] tracking-[0.3em] uppercase opacity-70 group-hover:opacity-100">Support Panel</span>
-                </button>
+                {!isStandalone && (
+                    <button
+                        onClick={onToggle}
+                        className="w-10 bg-blue-600 text-white flex flex-col items-center justify-center gap-4 py-8 rounded-r-2xl hover:bg-blue-700 transition-colors cursor-pointer group shadow-xl"
+                    >
+                        <HelpCircle className={`w-5 h-5 transition-transform duration-500 ${isOpen ? "rotate-180" : ""}`} />
+                        <span className="[writing-mode:vertical-rl] font-black text-[10px] tracking-[0.3em] uppercase opacity-70 group-hover:opacity-100">Support Panel</span>
+                    </button>
+                )}
             </div>
 
             <style jsx global>{`

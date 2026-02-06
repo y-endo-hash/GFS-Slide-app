@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles } from "lucide-react";
+import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles, ExternalLink, HelpCircle, ChevronRight } from "lucide-react";
 import { UserInput, SimulationResult } from "@/types";
 import { formatPercent } from "@/lib/simulation";
+import { cn } from "@/lib/utils";
 
 interface HearingMemoProps {
     userData: UserInput | null;
@@ -26,6 +27,33 @@ export default function HearingMemo({
 }: HearingMemoProps) {
     const [activeTab, setActiveTab] = useState<"summary" | "memo">("memo");
     const [isRateVisible, setIsRateVisible] = useState(false);
+
+    const openSupportWindow = () => {
+        if (!userData) return;
+
+        const params = new URLSearchParams({
+            name: userData.name || "",
+            age: String(userData.age || ""),
+            occupation: userData.occupation || "",
+            familyStructure: userData.familyStructure || "",
+            investmentGoal: userData.investmentGoal || "",
+            experience: userData.experience || "",
+            knowledgeLevel: userData.knowledgeLevel || "",
+            currentAssets: String(userData.currentAssets || 0),
+            monthlyInvestment: String(userData.monthlyInvestment || 0),
+        });
+
+        const width = 500;
+        const height = 800;
+        const left = window.screen.width - width;
+        const top = 0;
+
+        window.open(
+            `/support-panel?${params.toString()}`,
+            "GFSSupportPanel",
+            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+    };
 
     // Force memo tab if hearing is not complete
     useEffect(() => {
@@ -53,6 +81,37 @@ export default function HearingMemo({
 
                 {/* メモ内容 */}
                 <div className="w-80 bg-white/95 backdrop-blur-xl border-l border-slate-200 flex flex-col overflow-hidden">
+                    {/* GFS Content & Support Window Link */}
+                    <div className="p-4 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-blue-50/30 space-y-2">
+                        <a
+                            href="https://gfs.tokyo/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all group/link shadow-sm"
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-blue-600 rounded-lg">
+                                    <Sparkles className="w-3.5 h-3.5 text-white" />
+                                </div>
+                                <span className="text-[11px] font-black text-slate-700">GFSのコンテンツ</span>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover/link:translate-x-0.5 transition-transform" />
+                        </a>
+
+                        <button
+                            onClick={openSupportWindow}
+                            className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-200 transition-all group/support shadow-sm"
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-indigo-600 rounded-lg">
+                                    <HelpCircle className="w-3.5 h-3.5 text-white" />
+                                </div>
+                                <span className="text-[11px] font-black text-slate-700">サポートパネルを開く</span>
+                            </div>
+                            <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-support:scale-110 transition-transform" />
+                        </button>
+                    </div>
+
                     {/* Tabs Header */}
                     <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex gap-2">
                         {isHearingComplete && (

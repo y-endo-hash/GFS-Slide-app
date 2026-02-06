@@ -108,7 +108,7 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg">
                             <FileText className="w-7 h-7 text-white" />
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">
+                        <h1 className="text-5xl md:text-6xl font-black text-gray-800 tracking-tight">
                             本日の流れ
                         </h1>
                     </div>
@@ -133,12 +133,12 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                                             <section.icon className="w-7 h-7 text-white" />
                                         </div>
                                         <div className="flex-1 ml-5">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-bold text-gray-400">Section {section.id}</span>
-                                                <span className="text-xs text-gray-300">|</span>
-                                                <span className="text-xs text-gray-400">{section.time}</span>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <span className="text-sm font-bold text-gray-400">Section {section.id}</span>
+                                                <span className="text-sm text-gray-300">|</span>
+                                                <span className="text-sm text-gray-400">{section.time}</span>
                                             </div>
-                                            <h3 className="text-lg font-bold text-gray-800">
+                                            <h3 className="text-2xl font-bold text-gray-800">
                                                 {section.title}
                                             </h3>
                                         </div>
@@ -151,8 +151,8 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                                             className="flex-1 p-6 hover:bg-white transition-all text-center group/btn relative"
                                         >
                                             <div className="absolute top-0 left-0 w-full h-1 bg-slate-200 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                            <p className="text-[10px] font-black text-slate-400 mb-1 tracking-widest uppercase">Redefine Goal</p>
-                                            <p className="text-base font-black text-slate-800 group-hover/btn:text-primary transition-colors">
+                                            <p className="text-[11px] font-black text-slate-400 mb-1 tracking-widest uppercase">Redefine Goal</p>
+                                            <p className="text-lg font-black text-slate-800 group-hover/btn:text-primary transition-colors">
                                                 もう一度目標を教えてください
                                             </p>
                                         </button>
@@ -161,8 +161,8 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                                             className="flex-1 p-6 hover:bg-white transition-all text-center group/btn relative"
                                         >
                                             <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                            <p className="text-[10px] font-black text-blue-500 mb-1 tracking-widest uppercase">Quick View</p>
-                                            <p className="text-base font-black text-slate-800 group-hover/btn:text-blue-600 transition-colors">
+                                            <p className="text-[11px] font-black text-blue-500 mb-1 tracking-widest uppercase">Quick View</p>
+                                            <p className="text-lg font-black text-slate-800 group-hover/btn:text-blue-600 transition-colors">
                                                 シミュレーション結果を見る
                                             </p>
                                         </button>
@@ -188,15 +188,15 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
 
                                     {/* テキスト */}
                                     <div className="flex-1 ml-5">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-xs font-bold text-gray-400">Section {section.id}</span>
-                                            <span className="text-xs text-gray-300">|</span>
-                                            <span className="text-xs text-gray-400">{section.time}</span>
+                                        <div className="flex items-center gap-3 mb-1">
+                                            <span className="text-sm font-bold text-gray-400">Section {section.id}</span>
+                                            <span className="text-sm text-gray-300">|</span>
+                                            <span className="text-sm text-gray-400">{section.time}</span>
                                         </div>
-                                        <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors">
+                                        <h3 className="text-2xl font-bold text-gray-800 group-hover:text-primary transition-colors">
                                             {section.title}
                                         </h3>
-                                        <p className="text-sm text-gray-500">{section.subtitle}</p>
+                                        <p className="text-base text-gray-500">{section.subtitle}</p>
                                     </div>
 
                                     {/* 矢印 */}
@@ -215,10 +215,10 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                     <Button
                         onClick={onStart}
                         size="lg"
-                        className="min-w-64 text-lg h-16 shadow-2xl hover:scale-105 transition-transform bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                        className="min-w-64 text-xl h-20 shadow-2xl hover:scale-105 transition-transform bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 font-black px-12"
                     >
                         GFSへようこそ！
-                        <ArrowRight className="w-6 h-6" />
+                        <ArrowRight className="w-8 h-8" />
                     </Button>
                 </div>
             </div>

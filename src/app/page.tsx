@@ -12,7 +12,7 @@ import Phase5Closing from "@/components/Phase5Closing";
 import Phase1ThreeSteps from "@/components/Phase1ThreeSteps";
 import SupportPanel from "@/components/SupportPanel";
 import HearingMemo from "@/components/HearingMemo";
-import { Sparkles } from "lucide-react";
+import { Sparkles, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
@@ -24,6 +24,32 @@ export default function Home() {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isHearingMemoOpen, setIsHearingMemoOpen] = useState(false);
   const [sideMemoText, setSideMemoText] = useState("");
+  const [zoomScale, setZoomScale] = useState(1);
+
+  // ズーム制御
+  const handleZoomIn = () => setZoomScale(prev => Math.min(prev + 0.1, 2.0));
+  const handleZoomOut = () => setZoomScale(prev => Math.max(prev - 0.1, 0.5));
+  const handleResetZoom = () => setZoomScale(1);
+
+  // ショートカットキー
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "0") {
+        e.preventDefault();
+        handleResetZoom();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "=") {
+        e.preventDefault();
+        handleZoomIn();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "-") {
+        e.preventDefault();
+        handleZoomOut();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // フェーズが切り替わったときにトップにスクロール
   useEffect(() => {
@@ -105,76 +131,128 @@ export default function Home() {
   const showPersistentPanels = ["simulation", "solution", "closing"].includes(phase);
 
   return (
-    <>
-      {phase === "agenda" && (
-        <Agenda onStart={handleAgendaStart} onGoToPhase={goToPhase} userData={userData} />
-      )}
+    <div className="relative min-h-screen bg-slate-50 overflow-x-hidden">
+      {/* ズームコントローラー (左側固定) */}
+      <div className="fixed left-6 bottom-10 z-[100] flex flex-col gap-2 animate-in slide-in-from-left duration-700">
+        <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-2 rounded-2xl shadow-2xl flex flex-col items-center gap-3">
+          <button
+            onClick={handleZoomIn}
+            className="p-3 bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-xl transition-all active:scale-90 group"
+            title="ズームイン"
+          >
+            <ZoomIn className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </button>
 
-      {phase === "company" && (
-        <Phase2CompanyIntro
-          userData={userData}
-          onNext={handleCompanyNext}
-          onBack={() => goToPhase("agenda")}
-          onGoToAgenda={() => goToPhase("agenda")}
-        />
-      )}
+          <div className="h-[1px] w-8 bg-slate-100" />
 
-      {phase === "threeSteps" && (
-        <Phase1ThreeSteps
-          onNext={handleThreeStepsNext}
-          onBack={() => goToPhase("company")}
-          onGoToAgenda={() => goToPhase("agenda")}
-        />
-      )}
+          <button
+            onClick={handleResetZoom}
+            className="w-10 h-10 flex items-center justify-center text-[10px] font-black text-slate-400 hover:text-blue-600 transition-colors"
+            title="リセット"
+          >
+            {Math.round(zoomScale * 100)}%
+          </button>
 
-      {phase === "hearing" && (
-        <Phase1Hearing
-          onSubmit={handleHearingComplete}
-          onBack={() => goToPhase("threeSteps")}
-          onGoToAgenda={() => goToPhase("agenda")}
-        />
-      )}
+          <div className="h-[1px] w-8 bg-slate-100" />
 
-      {/* Persistent Panels (Support Panel is now handled via separate window in HearingMemo) */}
+          <button
+            onClick={handleZoomOut}
+            className="p-3 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-500 rounded-xl transition-all active:scale-90 group"
+            title="ズームアウト"
+          >
+            <ZoomOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </button>
+        </div>
 
-      <HearingMemo
-        userData={userData}
-        simulationResult={simulationResult}
-        isOpen={isHearingMemoOpen}
-        onToggle={() => setIsHearingMemoOpen(!isHearingMemoOpen)}
-        memoText={sideMemoText}
-        onMemoChange={setSideMemoText}
-        isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
-      />
+        <button
+          onClick={handleResetZoom}
+          className="p-3 bg-slate-900/10 hover:bg-slate-900/20 text-slate-600 rounded-xl transition-all backdrop-blur-sm group"
+          title="フィット"
+        >
+          <Maximize2 className="w-5 h-5 opacity-50 group-hover:opacity-100" />
+        </button>
+      </div>
 
-      {phase === "simulation" && userData && simulationResult && (
-        <Phase3Simulation
+      {/* メインコンテンツラップ (ズーム適用) */}
+      <div
+        className="transition-transform duration-300 ease-out origin-top-left"
+        style={{
+          transform: `scale(${zoomScale})`,
+          width: `${100 / zoomScale}%`,
+          height: `${100 / zoomScale}%`,
+          minHeight: '100vh'
+        }}
+      >
+        {phase === "agenda" && (
+          <Agenda onStart={handleAgendaStart} onGoToPhase={goToPhase} userData={userData} />
+        )}
+
+        {phase === "company" && (
+          <Phase2CompanyIntro
+            userData={userData}
+            onNext={handleCompanyNext}
+            onBack={() => goToPhase("agenda")}
+            onGoToAgenda={() => goToPhase("agenda")}
+          />
+        )}
+
+        {phase === "threeSteps" && (
+          <Phase1ThreeSteps
+            onNext={handleThreeStepsNext}
+            onBack={() => goToPhase("company")}
+            onGoToAgenda={() => goToPhase("agenda")}
+          />
+        )}
+
+        {phase === "hearing" && (
+          <Phase1Hearing
+            onSubmit={handleHearingComplete}
+            onBack={() => goToPhase("threeSteps")}
+            onGoToAgenda={() => goToPhase("agenda")}
+          />
+        )}
+
+        {/* Persistent Panels (Support Panel is now handled via separate window in HearingMemo) */}
+
+        <HearingMemo
           userData={userData}
           simulationResult={simulationResult}
-          onNext={() => goToPhase("solution")}
-          onBack={() => goToPhase("hearing")}
-          onGoToAgenda={() => goToPhase("agenda")}
+          isOpen={isHearingMemoOpen}
+          onToggle={() => setIsHearingMemoOpen(!isHearingMemoOpen)}
+          memoText={sideMemoText}
+          onMemoChange={setSideMemoText}
+          isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
         />
-      )}
 
-      {phase === "solution" && userData && simulationResult && (
-        <Phase4Solution
-          userData={userData}
-          simulationResult={simulationResult}
-          onNext={() => goToPhase("closing")}
-          onBack={() => goToPhase("simulation")}
-          onGoToAgenda={() => goToPhase("agenda")}
-        />
-      )}
+        {phase === "simulation" && userData && simulationResult && (
+          <Phase3Simulation
+            userData={userData}
+            simulationResult={simulationResult}
+            onNext={() => goToPhase("solution")}
+            onBack={() => goToPhase("hearing")}
+            onGoToAgenda={() => goToPhase("agenda")}
+          />
+        )}
 
-      {phase === "closing" && userData && simulationResult && (
-        <Phase5Closing
-          userData={userData}
-          simulationResult={simulationResult}
-          onBack={() => goToPhase("solution")}
-          onGoToAgenda={() => goToPhase("agenda")}
-        />
-      )}
-    </>
+        {phase === "solution" && userData && simulationResult && (
+          <Phase4Solution
+            userData={userData}
+            simulationResult={simulationResult}
+            onNext={() => goToPhase("closing")}
+            onBack={() => goToPhase("simulation")}
+            onGoToAgenda={() => goToPhase("agenda")}
+          />
+        )}
+
+        {phase === "closing" && userData && simulationResult && (
+          <Phase5Closing
+            userData={userData}
+            simulationResult={simulationResult}
+            onBack={() => goToPhase("solution")}
+            onGoToAgenda={() => goToPhase("agenda")}
+          />
+        )}
+      </div>
+    </div>
   );
 }

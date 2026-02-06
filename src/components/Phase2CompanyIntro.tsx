@@ -1243,16 +1243,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
         // カスタムスライド
         return (
-            <div className={`group/slide relative h-full bg-gradient-to-br ${slide.color} p-8 md:p-12 flex flex-col justify-center text-white overflow-hidden`}>
-                {/* 全画面化ボタン */}
-                <button
-                    onClick={() => setIsFullScreen(true)}
-                    className="absolute top-4 right-4 z-30 p-3 bg-white/10 hover:bg-white/20 rounded-full opacity-0 group-hover/slide:opacity-100 transition-all duration-300 backdrop-blur-md border border-white/20"
-                    title="全画面で表示"
-                >
-                    <Maximize2 className="w-5 h-5" />
-                </button>
-
+            <div className={`relative h-full bg-gradient-to-br ${slide.color} p-8 md:p-12 flex flex-col justify-center text-white overflow-hidden`}>
                 {/* キャラクター画像1 - 右下に配置 */}
                 {slide.characterImage && (
                     <div className="absolute right-4 bottom-4 w-48 h-48 md:w-64 md:h-64 opacity-30 animate-float pointer-events-none z-10">
@@ -1374,11 +1365,19 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                 {slides.map((slide, index) => (
                                     <div
                                         key={index}
-                                        className={`absolute inset-0 transition-all duration-700 ${index === currentSlide
+                                        className={`absolute inset-0 transition-all duration-700 group/slide-item ${index === currentSlide
                                             ? "opacity-100 scale-100"
                                             : "opacity-0 scale-95 pointer-events-none"
                                             }`}
                                     >
+                                        {/* 全画面化ボタン */}
+                                        <button
+                                            onClick={() => setIsFullScreen(true)}
+                                            className="absolute top-4 right-4 z-[40] p-3 bg-white/30 hover:bg-white/50 rounded-full opacity-0 group-hover/slide-item:opacity-100 transition-all duration-300 backdrop-blur-md border border-white/40 shadow-xl text-gray-800"
+                                            title="全画面で表示"
+                                        >
+                                            <Maximize2 className="w-5 h-5" />
+                                        </button>
                                         {renderSlide(slide)}
                                     </div>
                                 ))}
@@ -1477,102 +1476,47 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                 </div>
             )}
 
-            {/* カスタムスライド全画面オーバーレイ */}
+            {/* 全画面オーバーレイ */}
             {isFullScreen && (
                 <div className="fixed inset-0 z-[110] bg-black animate-in fade-in duration-500 overflow-hidden">
-                    <div className={`relative h-full w-full bg-gradient-to-br ${slides[currentSlide].color} flex flex-col items-center justify-center text-white p-8 md:p-20`}>
+                    <div className="relative h-full w-full">
                         {/* 閉じるボタン */}
                         <button
                             onClick={() => setIsFullScreen(false)}
-                            className="absolute top-6 right-6 z-[120] p-4 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-xl border border-white/20 transition-all group"
+                            className="absolute top-6 right-6 z-[130] p-4 bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-xl border border-white/20 transition-all group"
                         >
                             <X className="w-8 h-8 group-hover:rotate-90 transition-transform" />
                         </button>
 
                         {/* 左右ナビゲーションエリア（クリックで移動） */}
                         <div
-                            className="absolute left-0 top-0 w-1/4 h-full z-10 cursor-pointer group/nav"
+                            className="absolute left-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
                             onClick={(e) => { e.stopPropagation(); prevSlide(); }}
                         >
-                            <div className="absolute left-8 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full flex items-center justify-center">
+                            <div className="absolute left-8 top-1/2 -translate-y-1/2 p-4 bg-black/20 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full flex items-center justify-center">
                                 <ChevronLeft className="w-12 h-12 text-white/50" />
                             </div>
                         </div>
                         <div
-                            className="absolute right-0 top-0 w-1/4 h-full z-10 cursor-pointer group/nav"
+                            className="absolute right-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
                             onClick={(e) => { e.stopPropagation(); nextSlide(); }}
                         >
-                            <div className="absolute right-8 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full flex items-center justify-center">
+                            <div className="absolute right-8 top-1/2 -translate-y-1/2 p-4 bg-black/20 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full flex items-center justify-center">
                                 <ChevronRight className="w-12 h-12 text-white/50" />
                             </div>
                         </div>
 
-                        {/* キャラクター画像（全画面版） */}
-                        {slides[currentSlide].characterImage && (
-                            <div className="absolute right-10 bottom-10 w-64 h-64 md:w-96 md:h-96 opacity-40 animate-float pointer-events-none">
-                                <Image
-                                    src={slides[currentSlide].characterImage}
-                                    alt=""
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        )}
-                        {slides[currentSlide].characterImage2 && (
-                            <div className="absolute left-10 top-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 opacity-30 animate-float pointer-events-none" style={{ animationDelay: '0.8s' }}>
-                                <Image
-                                    src={slides[currentSlide].characterImage2}
-                                    alt=""
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        )}
-
-                        <div className="max-w-6xl w-full relative z-20 space-y-12 animate-in slide-in-from-bottom-10 duration-700">
-                            <div className="flex items-center gap-8">
-                                {slides[currentSlide].icon && (
-                                    <div className="p-6 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 animate-bounce-gentle">
-                                        {(() => {
-                                            const Icon = slides[currentSlide].icon;
-                                            return Icon ? <Icon className="w-16 h-16" /> : null;
-                                        })()}
-                                    </div>
-                                )}
-                                <div>
-                                    <p className="text-xl font-bold opacity-60 mb-2 uppercase tracking-[0.3em]">Section 01 / Intro</p>
-                                    <h2 className="text-5xl md:text-7xl font-black">{slides[currentSlide].title}</h2>
-                                </div>
-                            </div>
-
-                            <div className="space-y-8 pl-4 border-l-8 border-white/20">
-                                <h3 className="text-4xl md:text-5xl font-black leading-tight">
-                                    {slides[currentSlide].content?.heading}
-                                </h3>
-                                {slides[currentSlide].content?.subheading && (
-                                    <p className="text-2xl md:text-3xl font-bold opacity-90">
-                                        {slides[currentSlide].content.subheading}
-                                    </p>
-                                )}
-                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                                    {slides[currentSlide].content?.points.map((point: string, index: number) => (
-                                        <li key={index} className="flex items-start gap-4 text-2xl md:text-3xl animate-in fade-in slide-in-from-left duration-500" style={{ animationDelay: `${index * 100}ms` }}>
-                                            <div className="mt-2 text-white/60">
-                                                <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
-                                            </div>
-                                            <span>{point}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                        {/* スライド内容 */}
+                        <div className="h-full w-full overflow-y-auto">
+                            {renderSlide(slides[currentSlide])}
                         </div>
 
                         {/* 下部ページネーション */}
-                        <div className="absolute bottom-12 flex gap-4">
+                        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-[120]">
                             {slides.map((_, i) => (
                                 <div
                                     key={i}
-                                    className={`h-2 transition-all duration-500 rounded-full ${i === currentSlide ? "w-12 bg-white" : "w-4 bg-white/30"}`}
+                                    className={`h-2 transition-all duration-500 rounded-full border border-white/10 ${i === currentSlide ? "w-12 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" : "w-4 bg-white/30"}`}
                                 />
                             ))}
                         </div>

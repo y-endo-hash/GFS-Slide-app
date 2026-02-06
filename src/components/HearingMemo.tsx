@@ -29,18 +29,16 @@ export default function HearingMemo({
     const [isRateVisible, setIsRateVisible] = useState(false);
 
     const openSupportWindow = () => {
-        if (!userData) return;
-
         const params = new URLSearchParams({
-            name: userData.name || "",
-            age: String(userData.age || ""),
-            occupation: userData.occupation || "",
-            familyStructure: userData.familyStructure || "",
-            investmentGoal: userData.investmentGoal || "",
-            experience: userData.experience || "",
-            knowledgeLevel: userData.knowledgeLevel || "",
-            currentAssets: String(userData.currentAssets || 0),
-            monthlyInvestment: String(userData.monthlyInvestment || 0),
+            name: userData?.name || "",
+            age: String(userData?.age || ""),
+            occupation: userData?.occupation || "",
+            familyStructure: userData?.familyStructure || "",
+            investmentGoal: userData?.investmentGoal || "",
+            experience: userData?.experience || "",
+            knowledgeLevel: userData?.knowledgeLevel || "",
+            currentAssets: String(userData?.currentAssets || 0),
+            monthlyInvestment: String(userData?.monthlyInvestment || 0),
         });
 
         const width = 500;

@@ -144,7 +144,7 @@ export default function Home() {
         onToggle={() => setIsHearingMemoOpen(!isHearingMemoOpen)}
         memoText={sideMemoText}
         onMemoChange={setSideMemoText}
-        isHearingComplete={["simulation", "solution", "closing"].includes(phase)}
+        isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
       />
 
       {phase === "simulation" && userData && simulationResult && (

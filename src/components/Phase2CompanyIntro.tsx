@@ -72,6 +72,18 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
             }
         },
         {
+            type: "no1_achievements",
+            title: "オンライン投資スクール No.1",
+            description: "2025年 東京商工リサーチ調べ",
+            achievements: [
+                { label: "講師数", rank: "No.1" },
+                { label: "講義数", rank: "No.1" },
+                { label: "生徒数", rank: "No.1" }
+            ],
+            students: "60,000人",
+            note: "※2025年11月時点"
+        },
+        {
             type: "student_achievements",
             title: "GFS生徒の実績",
             description: "入学前は約66%の方は投資初心者ですが、半年~1年ほどで30万円以上の利益を出しています！",
@@ -418,7 +430,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                     </div>
 
                                     <p className="text-3xl md:text-4xl font-black relative z-10">
-                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400">累計受講者数</span>
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400">累計登録者数</span>
                                         {' '}
                                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-300 to-yellow-300 text-4xl md:text-5xl">50万人</span>
                                         {' '}

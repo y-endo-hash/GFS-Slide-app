@@ -23,6 +23,8 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
     const [hoveredProgram, setHoveredProgram] = useState<number | null>(null);
     const [showExteriorOverlay, setShowExteriorOverlay] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // スライドが切り替わったときにコンテナ内をトップにスクロール
@@ -194,8 +196,32 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
     const renderSlide = (slide: any) => {
         // 会社情報スライド（カスタムデザイン）
         if (slide.type === "company_info") {
+            if (isFullScreen) {
+                return (
+                    <div className="h-full w-full bg-gradient-to-br from-blue-700 via-blue-900 to-black flex items-center justify-center relative overflow-hidden p-0">
+                        {/* 背景の巨大なぼかし */}
+                        <div className="absolute top-0 left-0 w-[80vw] h-[80vw] bg-blue-500/20 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2"></div>
+                        <div className="absolute bottom-0 right-0 w-[60vw] h-[60vw] bg-cyan-500/20 rounded-full blur-[150px] translate-x-1/2 translate-y-1/2"></div>
+                        
+                        <div className="relative z-10 w-full px-12 text-center animate-fade-in">
+                            <h3 className="font-black text-white leading-tight mb-20 text-[10vw] drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                                株式会社GFS Education
+                            </h3>
+                            <div className="flex flex-col items-center gap-10">
+                                <div className="bg-white/10 backdrop-blur-xl rounded-[4rem] p-24 border-4 border-white/20 shadow-2xl w-full max-w-none inline-block">
+                                    <div className="space-y-16 text-white text-[5vw] font-black tracking-widest">
+                                        <p className="opacity-70">〒108-0023</p>
+                                        <p>東京都港区芝浦3-9-1</p>
+                                        <p>芝浦ルネサイトタワー 2F, 15F</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
             return (
-                <div className="h-full bg-gradient-to-br from-sky-100 via-blue-200 to-cyan-100 p-8 md:p-12 flex items-center relative overflow-hidden">
+                <div className={`h-full bg-gradient-to-br from-sky-100 via-blue-200 to-cyan-100 flex items-center relative overflow-hidden transition-all duration-700 p-8 md:p-12`}>
                     {/* 背景装飾 */}
                     <div className="absolute inset-0 opacity-10">
                         <Image
@@ -206,28 +232,28 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         />
                     </div>
 
-                    <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
+                    <div className={`relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center mx-auto transition-all duration-700 max-w-6xl gap-12`}>
                         {/* 左側: 会社情報 */}
                         <div className="text-gray-800">
                             {/* アイコンとタイトル */}
-                            <div className="flex items-center gap-3 mb-6">
-                                <Building2 className="w-10 h-10 md:w-12 md:h-12 text-blue-600" />
-                                <h2 className="text-2xl md:text-3xl font-bold text-blue-900">講座の運営元</h2>
+                            <div className={`flex items-center gap-3 transition-all mb-6`}>
+                                <Building2 className={`text-blue-600 transition-all w-10 h-10 md:w-12 md:h-12`} />
+                                <h2 className={`font-bold text-blue-900 transition-all text-2xl md:text-3xl`}>講座の運営元</h2>
                             </div>
 
                             {/* 会社名 */}
-                            <div className="mb-6">
-                                <h3 className="text-3xl md:text-4xl font-black mb-4 bg-gradient-to-r from-blue-700 to-cyan-600 bg-clip-text text-transparent">
+                            <div className={`transition-all mb-6`}>
+                                <h3 className={`font-black bg-gradient-to-r from-blue-700 to-cyan-600 bg-clip-text text-transparent transition-all text-3xl md:text-4xl mb-4`}>
                                     株式会社GFS Education
                                 </h3>
                             </div>
 
                             {/* 住所情報 */}
-                            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 border-2 border-blue-300 shadow-lg">
-                                <div className="space-y-2 text-base md:text-lg">
-                                    <p className="text-blue-700 font-semibold">〒108-0023</p>
-                                    <p className="font-medium text-gray-800">東京都港区芝浦3-9-1</p>
-                                    <p className="font-medium text-gray-800">芝浦ルネサイトタワー 2F, 15F</p>
+                            <div className={`bg-white/80 backdrop-blur-sm rounded-3xl border-2 border-blue-300 shadow-lg transition-all p-6 mb-6`}>
+                                <div className={`space-y-8 transition-all text-base md:text-lg`}>
+                                    <p className="text-blue-700 font-extrabold whitespace-nowrap">〒108-0023</p>
+                                    <p className="font-extrabold text-gray-800">東京都港区芝浦3-9-1</p>
+                                    <p className="font-extrabold text-gray-800">芝浦ルネサイトタワー 2F, 15F</p>
                                 </div>
                             </div>
 
@@ -262,7 +288,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
                         {/* 右側: CMキャラクター画像 */}
                         <div className="flex items-center justify-center">
-                            <div className="relative w-full max-w-md aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+                            <div className={`relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-white transition-all duration-700 max-w-md`}>
                                 <Image
                                     src="/slides/cm_character.png"
                                     alt="GFSイメージキャラクター 藤本美貴さん"
@@ -278,40 +304,37 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
         // CM動画再生スライド
         if (slide.type === "cm_videos") {
-            const [selectedVideo, setSelectedVideo] = useState(0);
-            const [isPlaying, setIsPlaying] = useState(false);
-
             return (
-                <div className="h-full bg-gradient-to-br from-blue-50 via-sky-100 to-cyan-50 p-6 md:p-8 flex flex-col relative overflow-y-auto">
+                <div className={`h-full bg-gradient-to-br from-blue-50 via-sky-100 to-cyan-50 flex flex-col relative overflow-y-auto transition-all duration-700 ${isFullScreen ? "p-4 md:p-12" : "p-6 md:p-8"}`}>
                     {/* 背景装飾 */}
                     <div className="absolute inset-0 opacity-5">
                         <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-10 right-10 w-40 h-40 bg-cyan-400 rounded-full blur-3xl"></div>
                     </div>
 
-                    <div className="relative z-10 w-full max-w-6xl mx-auto">
+                    <div className={`relative z-10 w-full mx-auto transition-all duration-700 ${isFullScreen ? "max-w-[98%]" : "max-w-6xl"}`}>
                         {/* ヘッダー */}
-                        <div className="text-center mb-8">
-                            <h2 className="text-3xl md:text-4xl font-black text-blue-900 mb-3">
+                        <div className={`text-center transition-all ${isFullScreen ? "mb-12" : "mb-8"}`}>
+                            <h2 className={`font-black text-blue-900 transition-all ${isFullScreen ? "text-5xl md:text-6xl mb-6" : "text-3xl md:text-4xl mb-3"}`}>
                                 {slide.title}
                             </h2>
-                            <p className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                            <p className={`font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent transition-all ${isFullScreen ? "text-3xl md:text-4xl" : "text-xl md:text-2xl"}`}>
                                 {slide.description}
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className={`grid grid-cols-1 gap-12 transition-all ${isFullScreen ? "md:grid-cols-6" : "md:grid-cols-4"}`}>
                             {/* 左側: 動画サムネイル */}
-                            <div className="md:col-span-1 space-y-4">
+                            <div className={`space-y-6 transition-all ${isFullScreen ? "md:col-span-1" : "md:col-span-1"}`}>
                                 {slide.videos?.map((video: { src: string; title: string }, index: number) => (
                                     <button
                                         key={index}
                                         onClick={() => {
-                                            setSelectedVideo(index);
-                                            setIsPlaying(false);
+                                            setSelectedVideoIndex(index);
+                                            setIsVideoPlaying(false);
                                         }}
-                                        className={`w-full rounded-2xl overflow-hidden transition-all duration-300 ${selectedVideo === index
-                                            ? "ring-4 ring-blue-500 shadow-2xl scale-105"
+                                        className={`w-full rounded-2xl overflow-hidden transition-all duration-300 ${selectedVideoIndex === index
+                                            ? "ring-8 ring-blue-500 shadow-2xl scale-105"
                                             : "ring-2 ring-gray-300 hover:ring-blue-400 hover:scale-102"
                                             }`}
                                     >
@@ -322,39 +345,39 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                                 preload="metadata"
                                             />
                                             <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                                <div className="bg-white/90 rounded-full p-3">
-                                                    <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                                <div className={`bg-white/90 rounded-full transition-all ${isFullScreen ? "p-6" : "p-3"}`}>
+                                                    <svg className={`${isFullScreen ? "w-12 h-12" : "w-6 h-6"} text-blue-600`} fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="bg-white p-3 text-center border-t-2 border-blue-200">
-                                            <p className="font-serif font-bold text-blue-900 tracking-wide text-sm" style={{ letterSpacing: '0.1em' }}>{video.title}</p>
+                                        <div className={`bg-white text-center border-t-2 border-blue-200 transition-all ${isFullScreen ? "p-6" : "p-3"}`}>
+                                            <p className={`font-serif font-black text-blue-900 tracking-wide transition-all ${isFullScreen ? "text-2xl" : "text-sm"}`} style={{ letterSpacing: '0.1em' }}>{video.title}</p>
                                         </div>
                                     </button>
                                 ))}
                             </div>
 
                             {/* 右側: メイン動画プレーヤー */}
-                            <div className="md:col-span-3">
-                                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-blue-200">
+                            <div className={`transition-all ${isFullScreen ? "md:col-span-5" : "md:col-span-3"}`}>
+                                <div className={`bg-white rounded-[3rem] shadow-2xl overflow-hidden border-4 border-blue-200 transition-all ${isFullScreen ? "scale-125 shadow-[0_0_150px_rgba(59,130,246,0.6)] border-[16px] my-10" : ""}`}>
                                     <div className="relative aspect-video bg-black">
                                         <video
-                                            key={selectedVideo}
-                                            src={slide.videos?.[selectedVideo].src}
+                                            key={selectedVideoIndex}
+                                            src={slide.videos?.[selectedVideoIndex].src}
                                             controls
-                                            autoPlay={isPlaying}
+                                            autoPlay={isVideoPlaying}
                                             className="w-full h-full"
-                                            onPlay={() => setIsPlaying(true)}
-                                            onPause={() => setIsPlaying(false)}
+                                            onPlay={() => setIsVideoPlaying(true)}
+                                            onPause={() => setIsVideoPlaying(false)}
                                         >
                                             お使いのブラウザは動画タグをサポートしていません。
                                         </video>
                                     </div>
-                                    <div className="bg-white p-6 text-center border-t-4 border-blue-300">
-                                        <p className="text-2xl font-serif font-bold text-blue-900" style={{ letterSpacing: '0.15em' }}>
-                                            {slide.videos?.[selectedVideo].title}
+                                    <div className={`bg-white text-center border-t-4 border-blue-300 transition-all ${isFullScreen ? "p-12" : "p-6"}`}>
+                                        <p className={`font-serif font-black text-blue-900 transition-all ${isFullScreen ? "text-6xl md:text-8xl py-6" : "text-2xl"}`} style={{ letterSpacing: '0.15em' }}>
+                                            {slide.videos?.[selectedVideoIndex].title}
                                         </p>
                                     </div>
                                 </div>
@@ -447,26 +470,26 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
         // No.1実績スライド
         if (slide.type === "no1_achievements") {
             return (
-                <div className="h-full bg-gradient-to-br from-blue-50 via-indigo-100 to-blue-50 p-6 md:p-8 flex flex-col relative overflow-y-auto">
+                <div className={`h-full bg-gradient-to-br from-blue-50 via-indigo-100 to-blue-50 flex flex-col relative overflow-y-auto transition-all duration-700 ${isFullScreen ? "p-4 md:p-10" : "p-6 md:p-8"}`}>
                     {/* 背景装飾 */}
                     <div className="absolute inset-0 opacity-5">
                         <div className="absolute top-20 left-20 w-40 h-40 bg-indigo-400 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-20 right-20 w-48 h-48 bg-blue-400 rounded-full blur-3xl"></div>
                     </div>
 
-                    <div className="relative z-10 w-full max-w-6xl mx-auto">
+                    <div className={`relative z-10 w-full mx-auto transition-all duration-700 ${isFullScreen ? "max-w-none px-12" : "max-w-6xl"}`}>
                         {/* ヘッダー */}
-                        <div className="text-center mb-8">
-                            <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 mb-3">
+                        <div className={`text-center transition-all ${isFullScreen ? "mb-32" : "mb-8"}`}>
+                            <h2 className={`font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 transition-all ${isFullScreen ? "text-8xl md:text-[12rem] mb-16" : "text-3xl md:text-5xl mb-3"}`}>
                                 {slide.title}
                             </h2>
-                            <p className="text-lg md:text-xl text-gray-700 font-semibold">
+                            <p className={`text-gray-700 font-black transition-all ${isFullScreen ? "text-5xl md:text-8xl" : "text-lg md:text-xl"}`}>
                                 {slide.description}
                             </p>
                         </div>
 
                         {/* 3つのNo.1バッジ */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 max-w-4xl mx-auto">
+                        <div className={`grid grid-cols-1 md:grid-cols-3 mx-auto transition-all ${isFullScreen ? "gap-24 mb-24 max-w-[95%]" : "gap-8 mb-8 max-w-4xl"}`}>
                             {slide.achievements?.map((achievement: { label: string; rank: string }, index: number) => (
                                 <div
                                     key={index}
@@ -477,24 +500,24 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
                                     {/* メインバッジ */}
                                     <div
-                                        className="relative bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 rounded-full aspect-square p-6 flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-2xl border-8 border-double border-amber-400"
+                                        className={`relative bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 rounded-full aspect-square flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-2xl border-double border-amber-400 ${isFullScreen ? "p-48 border-[32px] scale-[2.0]" : "p-6 border-8"}`}
                                         style={{
-                                            boxShadow: "0 0 40px rgba(251, 191, 36, 0.4), inset 0 0 20px rgba(251, 191, 36, 0.1)"
+                                            boxShadow: isFullScreen
+                                                ? "0 0 150px rgba(251, 191, 36, 0.8), inset 0 0 80px rgba(251, 191, 36, 0.5)"
+                                                : "0 0 40px rgba(251, 191, 36, 0.4), inset 0 0 20px rgba(251, 191, 36, 0.1)"
                                         }}
                                     >
                                         {/* 王冠アイコン */}
-                                        <div className="absolute -top-8 bg-gradient-to-br from-amber-300 to-amber-500 rounded-full p-4 shadow-xl border-4 border-amber-200">
-                                            <svg className="w-6 h-6 text-amber-900" fill="currentColor" viewBox="0 0 24 24">
+                                        <div className={`absolute bg-gradient-to-br from-amber-300 to-amber-500 rounded-full shadow-xl border-amber-200 transition-all ${isFullScreen ? "-top-12 p-6 border-8" : "-top-8 p-4 border-4"}`}>
+                                            <svg className={`${isFullScreen ? "w-10 h-10" : "w-6 h-6"} text-amber-900`} fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z" />
                                             </svg>
                                         </div>
 
                                         {/* 月桂樹の装飾 - 左側 */}
-                                        <div className="absolute left-1 top-1/2 -translate-y-1/2">
+                                        <div className={`absolute top-1/2 -translate-y-1/2 transition-all ${isFullScreen ? "-left-12 scale-150" : "left-1"}`}>
                                             <svg className="w-10 h-20 text-amber-400 opacity-70" viewBox="0 0 30 60" fill="currentColor">
-                                                {/* 茎 */}
                                                 <path d="M15 5 Q10 10, 12 15 Q7 20, 9 25 Q5 30, 7 35 Q3 40, 5 45 Q1 50, 3 55" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                                                {/* 葉っぱ */}
                                                 <ellipse cx="12" cy="10" rx="4" ry="2.5" transform="rotate(-35 12 10)" opacity="0.9" />
                                                 <ellipse cx="9" cy="18" rx="4" ry="2.5" transform="rotate(-25 9 18)" opacity="0.9" />
                                                 <ellipse cx="7" cy="26" rx="4" ry="2.5" transform="rotate(-35 7 26)" opacity="0.9" />
@@ -505,11 +528,9 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                         </div>
 
                                         {/* 月桂樹の装飾 - 右側 */}
-                                        <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                                        <div className={`absolute top-1/2 -translate-y-1/2 transition-all ${isFullScreen ? "-right-12 scale-150" : "right-1"}`}>
                                             <svg className="w-10 h-20 text-amber-400 opacity-70" viewBox="0 0 30 60" fill="currentColor">
-                                                {/* 茎 */}
                                                 <path d="M15 5 Q20 10, 18 15 Q23 20, 21 25 Q25 30, 23 35 Q27 40, 25 45 Q29 50, 27 55" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                                                {/* 葉っぱ */}
                                                 <ellipse cx="18" cy="10" rx="4" ry="2.5" transform="rotate(35 18 10)" opacity="0.9" />
                                                 <ellipse cx="21" cy="18" rx="4" ry="2.5" transform="rotate(25 21 18)" opacity="0.9" />
                                                 <ellipse cx="23" cy="26" rx="4" ry="2.5" transform="rotate(35 23 26)" opacity="0.9" />
@@ -519,53 +540,40 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                             </svg>
                                         </div>
 
-                                        {/* 内側の装飾リング - グラデーション */}
-                                        <div className="absolute inset-3 rounded-full border-2 border-amber-300/40"></div>
-                                        <div className="absolute inset-5 rounded-full border-2 border-amber-400/30"></div>
-                                        <div className="absolute inset-7 rounded-full border border-yellow-300/20"></div>
-
-                                        {/* 回転するグラデーションリング */}
-                                        <div className="absolute inset-2 rounded-full opacity-30">
-                                            <div className="w-full h-full rounded-full bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-spin" style={{ animationDuration: '8s' }}></div>
-                                        </div>
-
                                         {/* コンテンツ */}
                                         <div className="text-center relative z-10">
-                                            <p className="text-amber-100 text-xl md:text-2xl font-bold mb-2 drop-shadow-lg tracking-wide">
+                                            <p className={`text-amber-100 font-bold drop-shadow-lg tracking-wide transition-all ${isFullScreen ? "text-6xl md:text-8xl mb-16" : "text-xl md:text-2xl mb-2"}`}>
                                                 {achievement.label}
                                             </p>
-                                            <p className="text-amber-300 text-4xl md:text-5xl font-black tracking-wider drop-shadow-2xl" style={{ letterSpacing: '0.05em' }}>
+                                            <p className={`text-amber-300 font-black tracking-wider drop-shadow-2xl transition-all ${isFullScreen ? "text-9xl md:text-[12rem]" : "text-4xl md:text-5xl"}`} style={{ letterSpacing: '0.05em' }}>
                                                 {achievement.rank}
                                             </p>
                                         </div>
-
-                                        {/* ホバー時のグロー効果 */}
-                                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400/0 to-amber-400/0 group-hover:from-amber-400/20 group-hover:to-amber-400/10 transition-all duration-300"></div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         {/* 東京商工リサーチのテキスト */}
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 border-2 border-indigo-300 shadow-lg text-center">
-                            <p className="text-lg md:text-xl text-gray-800 font-semibold">
+                        <div className={`bg-white/80 backdrop-blur-sm rounded-3xl border-2 border-indigo-300 shadow-lg text-center transition-all ${isFullScreen ? "p-10 mb-10" : "p-6 mb-6"}`}>
+                            <p className={`text-gray-800 font-bold transition-all ${isFullScreen ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}>
                                 東京商工リサーチ調べで、オンライン投資スクールとして<br />
-                                <span className="text-indigo-700 font-black">3つの分野で1位</span>を獲得しています
+                                <span className={`text-indigo-700 font-black transition-all ${isFullScreen ? "text-3xl md:text-4xl" : ""}`}>3つの分野で1位</span>を獲得しています
                             </p>
                         </div>
 
                         {/* 受講者数 */}
-                        <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 rounded-3xl p-8 shadow-2xl border-4 border-amber-400 text-center">
-                            <p className="text-white text-2xl md:text-3xl font-bold mb-2">
+                        <div className={`bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 rounded-3xl shadow-2xl border-4 border-amber-400 text-center transition-all ${isFullScreen ? "p-12 mb-10" : "p-8"}`}>
+                            <p className={`text-white font-bold transition-all ${isFullScreen ? "text-3xl md:text-4xl mb-4" : "text-2xl md:text-3xl mb-2"}`}>
                                 現役生徒数
                             </p>
-                            <p className="text-amber-300 text-5xl md:text-6xl font-black mb-2">
+                            <p className={`text-amber-300 font-black transition-all ${isFullScreen ? "text-7xl md:text-8xl mb-4" : "text-5xl md:text-6xl mb-2"}`}>
                                 {slide.students}
                             </p>
-                            <p className="text-white text-4xl md:text-5xl font-black mb-3">
+                            <p className={`text-white font-black transition-all ${isFullScreen ? "text-5xl md:text-6xl mb-6" : "text-4xl md:text-5xl mb-3"}`}>
                                 を突破！
                             </p>
-                            <p className="text-amber-200 text-base md:text-lg">
+                            <p className={`text-amber-200 font-bold transition-all ${isFullScreen ? "text-xl md:text-2xl" : "text-base md:text-lg"}`}>
                                 {slide.note}
                             </p>
                         </div>
@@ -579,120 +587,77 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
             const maxAmount = Math.max(...(slide.barChart?.data.map((d: { amount: number }) => d.amount) || [300]));
 
             return (
-                <div className="h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 p-6 md:p-8 flex flex-col relative overflow-y-auto">
+                <div className={`h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 flex flex-col relative overflow-y-auto transition-all duration-700 ${isFullScreen ? "p-4 md:p-8" : "p-6 md:p-8"}`}>
                     {/* 背景装飾 */}
                     <div className="absolute inset-0 opacity-5">
                         <div className="absolute top-20 right-20 w-40 h-40 bg-pink-400 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-400 rounded-full blur-3xl"></div>
                     </div>
 
-                    <div className="relative z-10 w-full max-w-6xl mx-auto">
+                    <div className={`relative z-10 w-full mx-auto transition-all duration-700 ${isFullScreen ? "max-w-[98%]" : "max-w-6xl"}`}>
                         {/* ヘッダー */}
-                        <div className="text-center mb-6">
-                            <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 mb-3">
+                        <div className={`text-center transition-all ${isFullScreen ? "mb-10" : "mb-6"}`}>
+                            <h2 className={`font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 transition-all ${isFullScreen ? "text-5xl md:text-6xl mb-6" : "text-3xl md:text-4xl mb-3"}`}>
                                 {slide.title}
                             </h2>
-                            <p className="text-base md:text-lg text-gray-700 font-semibold bg-blue-900 text-white px-6 py-3 rounded-lg inline-block">
+                            <p className={`text-gray-700 font-bold bg-blue-900 text-white rounded-xl inline-block transition-all ${isFullScreen ? "text-xl md:text-2xl px-10 py-5" : "text-base md:text-lg px-6 py-3"}`}>
                                 {slide.description}
                             </p>
                         </div>
 
                         {/* 2カラムレイアウト */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className={`grid grid-cols-1 gap-6 transition-all ${isFullScreen ? "lg:grid-cols-2 gap-12" : "lg:grid-cols-2"}`}>
                             {/* 左: 円グラフ */}
-                            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border-2 border-indigo-200">
+                            <div className={`bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-indigo-200 transition-all ${isFullScreen ? "p-10" : "p-6"}`}>
                                 <div className="text-center mb-6">
-                                    <h3 className="text-xl md:text-2xl font-bold text-gray-800">
+                                    <h3 className={`font-bold text-gray-800 transition-all ${isFullScreen ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"}`}>
                                         {slide.pieChart?.title}
                                     </h3>
                                 </div>
 
                                 {/* 円グラフ */}
-                                <div className="flex items-center justify-center relative pt-8">
-                                    {/* 左側のラベル（投資経験者 34%） */}
-                                    <div className="absolute -left-2 md:left-2 top-1/2 -translate-y-1/2 animate-fade-in-left z-10" style={{ animationDelay: '2s' }}>
-                                        <div className="text-right pr-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md">
-                                            <p className="text-xs md:text-sm font-semibold text-blue-400">
-                                                投資経験者
-                                            </p>
-                                            <p className="text-2xl md:text-3xl font-black text-blue-400">
-                                                34%
-                                            </p>
+                                <div className={`flex items-center justify-center relative transition-all ${isFullScreen ? "pt-24 pb-16" : "pt-8"}`}>
+                                    {/* ラベル */}
+                                    <div className={`absolute top-1/2 -translate-y-1/2 animate-fade-in-left z-10 transition-all ${isFullScreen ? "-left-16" : "-left-8"}`} style={{ animationDelay: '2s' }}>
+                                        <div className={`text-right bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl transition-all ${isFullScreen ? "p-8 border-2 border-blue-100" : "p-6"}`}>
+                                            <p className={`font-bold text-blue-400 transition-all ${isFullScreen ? "text-4xl mb-4" : "text-2xl mb-2"}`}>投資経験者</p>
+                                            <p className={`font-black text-blue-400 transition-all ${isFullScreen ? "text-7xl md:text-9xl" : "text-5xl md:text-7xl"}`}>34%</p>
                                         </div>
                                     </div>
-
-                                    {/* 右側のラベル（投資初心者 66%） */}
-                                    <div className="absolute -right-2 md:right-2 top-1/2 -translate-y-1/2 animate-fade-in-right z-10" style={{ animationDelay: '1.2s' }}>
-                                        <div className="text-left pl-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md">
-                                            <p className="text-xs md:text-sm font-semibold text-blue-900">
-                                                投資初心者
-                                            </p>
-                                            <p className="text-2xl md:text-3xl font-black text-blue-900">
-                                                66%
-                                            </p>
+                                    <div className={`absolute top-1/2 -translate-y-1/2 animate-fade-in-right z-10 transition-all ${isFullScreen ? "-right-16" : "-right-8"}`} style={{ animationDelay: '1.2s' }}>
+                                        <div className={`text-left bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl transition-all ${isFullScreen ? "p-8 border-2 border-blue-100" : "p-6"}`}>
+                                            <p className={`font-bold text-blue-900 transition-all ${isFullScreen ? "text-4xl mb-4" : "text-2xl mb-2"}`}>投資初心者</p>
+                                            <p className={`font-black text-blue-900 transition-all ${isFullScreen ? "text-7xl md:text-9xl" : "text-5xl md:text-7xl"}`}>66%</p>
                                         </div>
                                     </div>
 
                                     {/* SVG円グラフ */}
-                                    <svg className="w-64 h-64 md:w-72 md:h-72" viewBox="0 0 200 200">
-                                        {/* 背景の円（投資経験者 34% - ライトブルー） */}
-                                        <circle
-                                            cx="100"
-                                            cy="100"
-                                            r="70"
-                                            fill="none"
-                                            stroke="#60a5fa"
-                                            strokeWidth="50"
-                                            className="animate-fade-in-circle"
-                                            key={`bg-circle-${currentSlide}`}
-                                        />
-
-                                        {/* 投資初心者 66% - ネイビーブルー（上に重ねる） */}
-                                        <circle
-                                            cx="100"
-                                            cy="100"
-                                            r="70"
-                                            fill="none"
-                                            stroke="#1e3a8a"
-                                            strokeWidth="55"
-                                            strokeDasharray="440"
-                                            strokeDashoffset="440"
-                                            transform="rotate(-90 100 100)"
-                                            className="animate-fill-pie"
-                                            key={`main-circle-${currentSlide}`}
-                                        />
-
-                                        {/* 中央の白い円 */}
-                                        <circle
-                                            cx="100"
-                                            cy="100"
-                                            r="40"
-                                            fill="white"
-                                            className="animate-scale-center"
-                                            key={`center-circle-${currentSlide}`}
-                                        />
+                                    <svg className={`transition-all ${isFullScreen ? "w-[800px] h-[800px] md:w-[1200px] md:h-[1200px]" : "w-64 h-64"}`} viewBox="0 0 200 200">
+                                        <circle cx="100" cy="100" r="70" fill="none" stroke="#60a5fa" strokeWidth="50" className="animate-fade-in-circle" key={`bg-circle-${currentSlide}-${isFullScreen}`} />
+                                        <circle cx="100" cy="100" r="70" fill="none" stroke="#1e3a8a" strokeWidth="55" strokeDasharray="440" strokeDashoffset="440" transform="rotate(-90 100 100)" className="animate-fill-pie" key={`main-circle-${currentSlide}-${isFullScreen}`} />
+                                        <circle cx="100" cy="100" r="40" fill="white" className="animate-scale-center" key={`center-circle-${currentSlide}-${isFullScreen}`} />
                                     </svg>
                                 </div>
                             </div>
 
                             {/* 右: 棒グラフ */}
-                            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border-2 border-indigo-200">
-                                <div className="text-center mb-4">
-                                    <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+                            <div className={`bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-indigo-200 transition-all ${isFullScreen ? "p-16 flex flex-col justify-center border-4" : "p-6"}`}>
+                                <div className={`text-center transition-all ${isFullScreen ? "mb-12" : "mb-4"}`}>
+                                    <h3 className={`font-bold text-gray-800 transition-all ${isFullScreen ? "text-4xl md:text-6xl mb-6" : "text-xl md:text-2xl mb-2"}`}>
                                         {slide.barChart?.title}
                                     </h3>
-                                    <p className="text-sm md:text-base font-bold text-white bg-blue-900 px-4 py-2 rounded-lg inline-block">
+                                    <p className={`font-bold text-white bg-blue-900 rounded-lg inline-block transition-all ${isFullScreen ? "text-3xl md:text-4xl px-10 py-5" : "text-sm md:text-base px-4 py-2"}`}>
                                         {slide.barChart?.subtitle}
                                     </p>
                                 </div>
 
                                 {/* 棒グラフ */}
-                                <div className="relative h-80 mb-4">
+                                <div className={`relative transition-all ${isFullScreen ? "h-[650px] mb-12" : "h-80 mb-4"}`}>
                                     <div className="absolute inset-0 flex items-end justify-around px-4">
                                         {slide.barChart?.data.map((item: { amount: number; highlight?: boolean; color: string; period: string }, index: number) => (
                                             <div key={index} className="flex flex-col items-center flex-1 mx-1 h-full">
                                                 {/* 金額ラベル */}
-                                                <div className={`text-base md:text-xl font-black mb-2 ${item.highlight ? 'text-red-600' : 'text-pink-600'}`}>
+                                                <div className={`font-black mb-4 transition-all ${item.highlight ? 'text-red-600' : 'text-pink-600'} ${isFullScreen ? "text-4xl md:text-6xl" : "text-base md:text-xl"}`}>
                                                     約{item.amount}万円
                                                 </div>
 
@@ -715,8 +680,8 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                                 </div>
 
                                                 {/* 期間ラベル */}
-                                                <div className="mt-3 text-center">
-                                                    <div className="bg-blue-900 text-white px-2 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">
+                                                <div className={`mt-6 text-center transition-all ${isFullScreen ? "scale-150" : ""}`}>
+                                                    <div className="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap">
                                                         {item.period}
                                                     </div>
                                                 </div>
@@ -726,7 +691,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                 </div>
 
                                 {/* 注釈 */}
-                                <p className="text-xs text-gray-600 text-center mt-2">
+                                <p className={`text-gray-600 text-center transition-all ${isFullScreen ? "text-xl md:text-2xl mt-8" : "text-xs mt-2"}`}>
                                     {slide.barChart?.note}
                                 </p>
                             </div>
@@ -876,29 +841,29 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
         if (slide.type === "learning_method_comparison") {
             return (
-                <div className="relative h-full flex flex-col bg-white p-8 overflow-y-auto scroll-smooth" style={{ willChange: 'scroll-position' }}>
+                <div className={`relative h-full flex flex-col bg-white overflow-y-auto scroll-smooth transition-all duration-700 ${isFullScreen ? "p-4 md:p-8" : "p-8"}`} style={{ willChange: 'scroll-position' }}>
                     {/* タイトルとサブタイトル */}
-                    <div className="text-center mb-8 animate-fade-in-down">
-                        <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-3">
+                    <div className={`text-center animate-fade-in-down transition-all ${isFullScreen ? "mb-12" : "mb-8"}`}>
+                        <h2 className={`font-black text-gray-900 transition-all ${isFullScreen ? "text-5xl md:text-8xl mb-8" : "text-3xl md:text-5xl mb-3"}`}>
                             {slide.title}
                         </h2>
-                        <p className="text-lg md:text-2xl font-bold text-blue-600">
+                        <p className={`font-bold text-blue-600 transition-all ${isFullScreen ? "text-3xl md:text-5xl" : "text-lg md:text-2xl"}`}>
                             {slide.subtitle}
                         </p>
                     </div>
 
                     {/* 2カラム比較レイアウト */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full flex-1">
+                    <div className={`grid grid-cols-1 mx-auto w-full flex-1 transition-all ${isFullScreen ? "lg:grid-cols-2 gap-20 max-w-[98%]" : "lg:grid-cols-2 gap-8 max-w-7xl"}`}>
                         {/* 左側: 独学の場合 */}
-                        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-2 border-gray-200 animate-slide-in-left flex flex-col">
+                        <div className={`bg-white rounded-[4rem] shadow-2xl border-4 border-gray-200 animate-slide-in-left flex flex-col transition-all ${isFullScreen ? "p-16 md:p-24" : "p-6 md:p-8"}`}>
                             {/* タイトル */}
-                            <div className="bg-gray-600 text-white text-center py-4 rounded-xl mb-6 shadow-lg">
-                                <h3 className="text-2xl md:text-3xl font-bold">{slide.selfStudy?.title}</h3>
+                            <div className={`bg-gray-600 text-white text-center rounded-3xl shadow-xl transition-all ${isFullScreen ? "py-12 mb-20" : "py-4 mb-6"}`}>
+                                <h3 className={`font-black transition-all ${isFullScreen ? "text-6xl md:text-8xl" : "text-2xl md:text-3xl"}`}>{slide.selfStudy?.title}</h3>
                             </div>
 
                             {/* 困っている人のイラスト */}
-                            <div className="text-center mb-6 animate-bounce-slow">
-                                <div className="relative w-48 h-48 md:w-56 md:h-56 mx-auto">
+                            <div className={`text-center animate-bounce-slow transition-all ${isFullScreen ? "mb-32" : "mb-6"}`}>
+                                <div className={`relative mx-auto transition-all ${isFullScreen ? "w-[1200px] h-[1000px] md:w-[1600px] md:h-[1400px]" : "w-48 h-48 md:w-56 md:h-56"}`}>
                                     <Image
                                         src="/slides/confused_person_v2.png"
                                         alt="困っている人"
@@ -906,12 +871,12 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                         className="object-contain"
                                     />
                                 </div>
-                                <p className="text-gray-600 font-semibold text-lg mt-2">情報が混乱...</p>
+                                <p className={`text-gray-600 font-black mt-20 transition-all ${isFullScreen ? "text-[10rem]" : "text-lg"}`}>情報が混乱...</p>
                             </div>
 
                             {/* フラフラ曲線と問題点の統合ビジュアル */}
-                            <div className="relative flex-1 min-h-[500px] flex items-center justify-center">
-                                <svg viewBox="0 0 400 600" className="w-full h-full max-w-md mx-auto">
+                            <div className={`relative flex-1 flex items-center justify-center transition-all ${isFullScreen ? "min-h-[800px]" : "min-h-[500px]"}`}>
+                                <svg viewBox="0 0 400 600" className={`w-full h-full mx-auto transition-all ${isFullScreen ? "max-w-2xl" : "max-w-md"}`}>
                                     <defs>
                                         <marker id="arrowhead-gray-vertical" markerWidth="10" markerHeight="10"
                                             refX="5" refY="5" orient="auto">
@@ -942,10 +907,10 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
                                     {/* 問題点1 - 左側の屈曲部 */}
                                     <g className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                                        <foreignObject x="10" y="110" width="150" height="80">
-                                            <div className="flex items-start gap-2 bg-white p-3 rounded-lg shadow-lg border-2 border-red-200">
-                                                <span className="text-red-500 text-xl flex-shrink-0">❌</span>
-                                                <p className="text-gray-700 font-medium text-sm">{slide.selfStudy?.problems[0]}</p>
+                                        <foreignObject x={isFullScreen ? "-20" : "10"} y="110" width={isFullScreen ? "250" : "150"} height={isFullScreen ? "150" : "80"}>
+                                            <div className={`flex items-start bg-white rounded-2xl shadow-xl border-2 border-red-200 transition-all ${isFullScreen ? "p-6 gap-4" : "p-3 gap-2"}`}>
+                                                <span className={`text-red-500 flex-shrink-0 transition-all ${isFullScreen ? "text-4xl" : "text-xl"}`}>❌</span>
+                                                <p className={`text-gray-700 font-bold transition-all ${isFullScreen ? "text-2xl" : "text-sm"}`}>{slide.selfStudy?.problems[0]}</p>
                                             </div>
                                         </foreignObject>
                                     </g>
@@ -975,21 +940,21 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         </div>
 
                         {/* 右側: GFSの場合 */}
-                        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-2 border-blue-300 animate-slide-in-right flex flex-col">
+                        <div className={`bg-white rounded-[4rem] shadow-2xl border-4 border-blue-400 animate-slide-in-right flex flex-col transition-all ${isFullScreen ? "p-16 md:p-24" : "p-6 md:p-8"}`}>
                             {/* タイトル */}
-                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center py-4 rounded-xl mb-4 shadow-lg">
-                                <h3 className="text-2xl md:text-3xl font-bold">{slide.gfsMethod?.title}</h3>
+                            <div className={`bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center rounded-3xl shadow-xl transition-all ${isFullScreen ? "py-12 mb-12" : "py-4 mb-4"}`}>
+                                <h3 className={`font-black transition-all ${isFullScreen ? "text-6xl md:text-8xl" : "text-2xl md:text-3xl"}`}>{slide.gfsMethod?.title}</h3>
                             </div>
 
                             {/* サブタイトル */}
-                            <div className="text-center text-blue-900 font-bold text-base md:text-lg mb-6 leading-relaxed">
+                            <div className={`text-center text-blue-900 font-black mb-12 leading-relaxed transition-all ${isFullScreen ? "text-4xl md:text-5xl mb-16" : "text-base md:text-lg mb-6"}`}>
                                 <p>未経験者でも3ヶ月で投資ができる</p>
                                 <p>学習プログラムを提供</p>
                             </div>
 
                             {/* 笑顔の人のイラスト */}
-                            <div className="text-center mb-6 animate-scale-in">
-                                <div className="relative w-48 h-48 md:w-56 md:h-56 mx-auto">
+                            <div className={`text-center animate-scale-in transition-all ${isFullScreen ? "mb-32" : "mb-6"}`}>
+                                <div className={`relative mx-auto transition-all ${isFullScreen ? "w-[1200px] h-[1000px] md:w-[1600px] md:h-[1400px]" : "w-48 h-48 md:w-56 md:h-56"}`}>
                                     <Image
                                         src="/slides/happy_person_v2.png"
                                         alt="笑顔の人"
@@ -1258,7 +1223,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
             <div className={`relative h-full bg-gradient-to-br ${slide.color} p-8 md:p-12 flex flex-col justify-center text-white overflow-hidden`}>
                 {/* キャラクター画像1 - 右下に配置 */}
                 {slide.characterImage && (
-                    <div className={`absolute right-4 bottom-4 opacity-30 animate-float pointer-events-none z-10 transition-all duration-700 ${isFullScreen ? "w-64 h-64 md:w-96 md:h-96" : "w-48 h-48 md:w-64 md:h-64"}`}>
+                    <div className={`absolute right-4 bottom-4 opacity-40 animate-float pointer-events-none z-10 transition-all duration-700 ${isFullScreen ? "w-[400px] h-[400px] md:w-[700px] md:h-[700px] right-20 bottom-20" : "w-48 h-48 md:w-64 md:h-64"}`}>
                         <Image
                             src={slide.characterImage}
                             alt="キャラクター"
@@ -1270,7 +1235,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
                 {/* キャラクター画像2 - 斜め左上にずらして配置（重ならないように） */}
                 {slide.characterImage2 && (
-                    <div className={`absolute right-48 bottom-40 opacity-30 animate-float pointer-events-none z-20 transition-all duration-700 ${isFullScreen ? "w-64 h-64 md:w-96 md:h-96 right-64 bottom-64" : "w-48 h-48 md:w-64 md:h-64"}`} style={{ animationDelay: '0.5s' }}>
+                    <div className={`absolute right-48 bottom-40 opacity-40 animate-float pointer-events-none z-20 transition-all duration-700 ${isFullScreen ? "w-[400px] h-[400px] md:w-[700px] md:h-[700px] right-[400px] bottom-[300px]" : "w-48 h-48 md:w-64 md:h-64"}`} style={{ animationDelay: '0.5s' }}>
                         <Image
                             src={slide.characterImage2}
                             alt="キャラクター2"
@@ -1280,7 +1245,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                     </div>
                 )}
 
-                <div className={`mx-auto w-full relative z-10 transition-all duration-700 ${isFullScreen ? "max-w-6xl space-y-12" : "max-w-4xl space-y-4"}`}>
+                <div className={`mx-auto w-full relative z-10 transition-all duration-700 ${isFullScreen ? "max-w-[95%] space-y-16" : "max-w-4xl space-y-4"}`}>
                     <div className="flex items-center gap-6 mb-6">
                         {slide.icon && (
                             <div className={`bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center transition-all ${isFullScreen ? "p-8 w-24 h-24" : "p-4 w-16 h-16"}`}>
@@ -1288,29 +1253,29 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                             </div>
                         )}
                         <div>
-                            {isFullScreen && <p className="text-xl font-bold opacity-60 mb-2 uppercase tracking-[0.3em] font-serif">Section 01 / Concept</p>}
-                            <h2 className={`font-bold transition-all ${isFullScreen ? "text-5xl md:text-7xl" : "text-3xl md:text-4xl"}`}>
+                            {isFullScreen && <p className="text-3xl font-bold opacity-60 mb-4 uppercase tracking-[0.5em] font-serif">Section 01 / Concept</p>}
+                            <h2 className={`font-black transition-all ${isFullScreen ? "text-6xl md:text-9xl mb-10" : "text-3xl md:text-4xl"}`}>
                                 {slide.title}
                             </h2>
                         </div>
                     </div>
 
-                    <div className={`transition-all ${isFullScreen ? "space-y-12 pl-8 border-l-8 border-white/20" : "space-y-4"}`}>
-                        <h3 className={`font-bold mb-2 transition-all ${isFullScreen ? "text-4xl md:text-6xl leading-tight" : "text-2xl md:text-3xl"}`}>
+                    <div className={`transition-all ${isFullScreen ? "space-y-16 pl-12 border-l-[12px] border-white/20" : "space-y-4"}`}>
+                        <h3 className={`font-black mb-4 transition-all ${isFullScreen ? "text-5xl md:text-8xl leading-tight" : "text-2xl md:text-3xl"}`}>
                             {slide.content?.heading}
                         </h3>
                         {slide.content?.subheading && (
-                            <p className={`opacity-90 transition-all ${isFullScreen ? "text-2xl md:text-4xl font-bold mb-10" : "text-xl md:text-2xl mb-6"}`}>
+                            <p className={`opacity-90 font-bold transition-all ${isFullScreen ? "text-3xl md:text-5xl mb-16" : "text-xl md:text-2xl mb-6"}`}>
                                 {slide.content.subheading}
                             </p>
                         )}
-                        <ul className={`${isFullScreen ? "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" : "space-y-3 md:space-y-4"}`}>
+                        <ul className={`${isFullScreen ? "grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12" : "space-y-3 md:space-y-4"}`}>
                             {slide.content?.points.map((point: string, index: number) => (
-                                <li key={index} className="flex items-start gap-4 transition-all">
-                                    <div className="mt-2 text-white/60">
-                                        <div className={`bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-all ${isFullScreen ? "w-4 h-4" : "w-3 h-3"}`} />
+                                <li key={index} className="flex items-start gap-8 transition-all">
+                                    <div className="mt-4 text-white/60">
+                                        <div className={`bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,1)] transition-all ${isFullScreen ? "w-8 h-8" : "w-3 h-3"}`} />
                                     </div>
-                                    <span className={`transition-all ${isFullScreen ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}>
+                                    <span className={`font-bold transition-all ${isFullScreen ? "text-3xl md:text-5xl leading-tight" : "text-lg md:text-xl"}`}>
                                         {point}
                                     </span>
                                 </li>
@@ -1390,16 +1355,14 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                 {slides.map((slide, index) => (
                                     <div
                                         key={index}
-                                        className={`transition-all duration-700 ${index === currentSlide
-                                            ? isFullScreen
-                                                ? "fixed inset-0 z-[110] bg-black"
-                                                : "absolute inset-0 opacity-100 scale-100"
-                                            : "absolute inset-0 opacity-0 scale-95 pointer-events-none"
+                                        className={`absolute inset-0 transition-all duration-700 ${index === currentSlide
+                                            ? "opacity-100 scale-100"
+                                            : "opacity-0 scale-95 pointer-events-none"
                                             }`}
                                     >
                                         <div className="relative h-full group/slide-container">
                                             {/* 各スライド共通の全画面化ボタン */}
-                                            {index === currentSlide && !isFullScreen && (
+                                            {index === currentSlide && (
                                                 <button
                                                     onClick={() => setIsFullScreen(true)}
                                                     className="absolute top-4 right-4 z-40 p-3 bg-white/20 hover:bg-white/40 rounded-full opacity-0 group-hover/slide-container:opacity-100 transition-all duration-300 backdrop-blur-md border border-white/30 shadow-xl"
@@ -1410,47 +1373,6 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                             )}
 
                                             {renderSlide(slide)}
-
-                                            {/* 全画面モード中のコントロール */}
-                                            {index === currentSlide && isFullScreen && (
-                                                <>
-                                                    {/* 閉じるボタン */}
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setIsFullScreen(false); }}
-                                                        className="fixed top-8 right-8 z-[120] p-5 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-xl border border-white/20 transition-all group shadow-2xl"
-                                                    >
-                                                        <X className="w-10 h-10 group-hover:rotate-90 transition-transform" />
-                                                    </button>
-
-                                                    {/* 全画面ナビゲーション */}
-                                                    <div
-                                                        className="fixed left-0 top-0 w-32 h-full z-[115] cursor-pointer group/nav flex items-center justify-center"
-                                                        onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-                                                    >
-                                                        <div className="p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
-                                                            <ChevronLeft className="w-16 h-16 text-white/50" />
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        className="fixed right-0 top-0 w-32 h-full z-[115] cursor-pointer group/nav flex items-center justify-center"
-                                                        onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-                                                    >
-                                                        <div className="p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
-                                                            <ChevronRight className="w-16 h-16 text-white/50" />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* 下部ページネーション（全画面版） */}
-                                                    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[115] flex gap-4">
-                                                        {slides.map((_, i) => (
-                                                            <div
-                                                                key={i}
-                                                                className={`h-2.5 transition-all duration-500 rounded-full ${i === currentSlide ? "w-16 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" : "w-4 bg-white/30"}`}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </>
-                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -1545,6 +1467,54 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         >
                             閉じる
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 全画面オーバーレイ（前の仕様を復元・拡張） */}
+            {isFullScreen && (
+                <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center animate-in fade-in duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black opacity-90"></div>
+
+                    {/* 閉じるボタン */}
+                    <button
+                        onClick={() => setIsFullScreen(false)}
+                        className="absolute top-8 right-8 z-[130] p-4 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-xl border border-white/20 transition-all group"
+                    >
+                        <X className="w-8 h-8 text-white group-hover:rotate-90 transition-transform" />
+                    </button>
+
+                    {/* 左右ナビゲーションエリア */}
+                    <div
+                        className="absolute left-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
+                        onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                    >
+                        <div className="absolute left-12 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
+                            <ChevronLeft className="w-12 h-12 text-white/50" />
+                        </div>
+                    </div>
+                    <div
+                        className="absolute right-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
+                        onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                    >
+                        <div className="absolute right-12 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
+                            <ChevronRight className="w-12 h-12 text-white/50" />
+                        </div>
+                    </div>
+
+                    {/* スライド本体 */}
+                    <div className="relative w-full h-full overflow-hidden animate-in zoom-in-95 duration-500">
+                        {renderSlide(slides[currentSlide])}
+                    </div>
+
+                    {/* 下部ページネーション */}
+                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-[125]">
+                        {slides.map((_, i) => (
+                            <div
+                                key={i}
+                                className={`h-2 transition-all duration-500 rounded-full ${i === currentSlide ? "w-12 bg-white" : "w-4 bg-white/30"}`}
+                            />
+                        ))}
                     </div>
                 </div>
             )}

@@ -19,6 +19,13 @@ export default function Home() {
   // フェーズ順序: agenda -> company -> hearing -> simulation -> solution -> closing
   const [phase, setPhase] = useState<Phase>("agenda");
   const [userData, setUserData] = useState<UserInput | null>(null);
+
+  // 他のタブ（サポートパネル等）にフェーズ情報を同期
+  useEffect(() => {
+    const channel = new BroadcastChannel("gfs-sync");
+    channel.postMessage({ type: "PHASE_CHANGE", phase });
+    return () => channel.close();
+  }, [phase]);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);

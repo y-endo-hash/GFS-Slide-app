@@ -42,14 +42,14 @@ export default function HearingMemo({
         });
 
         const width = 500;
-        const height = 800;
-        const left = window.screen.width - width;
+        const height = 900;
+        const left = 0;
         const top = 0;
 
         window.open(
             `/support-panel?${params.toString()}`,
             "GFSSupportPanel",
-            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no,location=no,toolbar=no,menubar=no`
         );
     };
 

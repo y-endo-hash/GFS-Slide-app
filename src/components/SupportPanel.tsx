@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Book, HelpCircle, ChevronRight, MessageSquare, Info, Sparkles, X, Activity, ArrowRight, CheckCircle2, Clock } from "lucide-react";
+import {
+    Book, HelpCircle, ChevronRight, MessageSquare, Info, Sparkles, X, Activity,
+    CheckCircle2, Clock, Search, ChevronLeft, Building2, BookOpen,
+    Presentation, CheckSquare, LineChart, Lightbulb, FileText
+} from "lucide-react";
 import { GLOSSARY, SUPPORT_QA } from "@/constants/supportData";
 import { UserInput, Phase, SimulationResult } from "@/types";
 import { cn } from "@/lib/utils";
@@ -28,22 +32,56 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
     const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
     const [currentPhase, setCurrentPhase] = useState<Phase>("agenda");
     const [subStep, setSubStep] = useState<number | string>(0);
-    const [userData, setUserData] = useState<UserInput>(initialUserData);
+    const [liveSubStep, setLiveSubStep] = useState<number | string>(0);
+    const [selectedPreview, setSelectedPreview] = useState<'live' | 'explorer' | null>(null);
+    const [explorerPhase, setExplorerPhase] = useState<Phase>("agenda");
+    const [explorerSubStep, setExplorerSubStep] = useState<number | string>(0);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const defaultUserData: UserInput = {
+        name: "",
+        age: 0,
+        occupation: "",
+        familyStructure: "",
+        investmentGoal: "",
+        experience: "",
+        knowledgeLevel: "",
+        currentAssets: 0,
+        monthlyInvestment: 0,
+        targetAmount: 0,
+        targetPeriod: 0,
+        initialBudget: 0,
+        monthlySavings: 0,
+        investmentExperience: [],
+    };
+
+    const [userData, setUserData] = useState<UserInput>(initialUserData || defaultUserData);
     const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Sync from props
+    useEffect(() => {
+        if (initialUserData) setUserData(initialUserData);
+    }, [initialUserData]);
 
     // データの同期（ページ間、もしくは同一ページ内の他コンポーネントと）
     useEffect(() => {
         const channel = new BroadcastChannel("gfs-sync");
         channel.onmessage = (event) => {
             if (event.data?.type === "SYNC_STATE") {
-                if (event.data.phase) setCurrentPhase(event.data.phase);
-                if (event.data.subStep !== undefined) setSubStep(event.data.subStep);
+                if (event.data.phase) {
+                    setCurrentPhase(event.data.phase);
+                    if (selectedPreview !== 'explorer') {
+                        setExplorerPhase(event.data.phase);
+                    }
+                }
+                if (event.data.subStep !== undefined) {
+                    setSubStep(event.data.subStep);
+                    if (selectedPreview !== 'explorer') {
+                        setExplorerSubStep(event.data.subStep);
+                    }
+                }
                 if (event.data.simulationResult) setSimulationResult(event.data.simulationResult);
                 if (event.data.userData) setUserData(event.data.userData);
-            } else if (event.data?.type === "PHASE_CHANGE") {
-                setCurrentPhase(event.data.phase);
-                setSubStep(0);
             }
         };
 
@@ -51,55 +89,132 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
         channel.postMessage({ type: "REQUEST_SYNC" });
 
         return () => channel.close();
-    }, []);
+    }, [selectedPreview, subStep]);
 
     // 初期化時に親からのpropsでも更新
     useEffect(() => {
         setUserData(initialUserData);
     }, [initialUserData]);
 
-    const phases: { id: Phase; title: string; desc: string }[] = [
+    const phases: { id: Phase; title: string; desc: string; hideInTimeline?: boolean }[] = [
         { id: "agenda", title: "アジェンダ", desc: "本日の流れ" },
-        { id: "company", title: "GFSの紹介", desc: "信頼と実績" },
-        { id: "threeSteps", title: "3ステップ", desc: "資産形成の基本" },
-        { id: "hearing", title: "ヒアリング", desc: "目標の明確化" },
-        { id: "simulation", title: "分析結果", desc: "投資ロードマップ" },
-        { id: "solution", title: "解決策提示", desc: "GFSの活用法" },
-        { id: "closing", title: "クロージング", desc: "次へのステップ" },
+        { id: "company", title: "Section 01: 会社紹介", desc: "GFSについて" },
+        { id: "threeSteps", title: "Section 02: 3ステップ", desc: "理想のゴールを一緒に描きましょう" },
+        { id: "hearing", title: "Section 02: ヒアリング", desc: "理想のゴールを一緒に描きましょう" },
+        { id: "simulation", title: "分析結果", desc: "投資ロードマップ", hideInTimeline: true },
+        { id: "solution", title: "Section 03: 解決策提示", desc: "自分にピッタリな投資手段を考えよう" },
+        { id: "closing", title: "Section 04: クロージング", desc: "投資をできるようになろう！" },
     ];
 
     const currentIdx = phases.findIndex(p => p.id === currentPhase);
-    const nextPhaseBase = phases[currentIdx + 1];
 
-    // Determine what to show in the "Next Step" highlight
-    const getNextStepInfo = () => {
-        if (currentPhase === "hearing") {
-            if (typeof subStep === 'number' && subStep < 3) {
-                return { id: "hearing", title: "ヒアリング (次へ)", desc: "目標の具体化...", subStep: subStep + 1 };
+    // Explorer Logic: Manual Stepping
+    const getNextState = (phase: Phase, step: number | string): { phase: Phase; subStep: number | string } | null => {
+        const pIdx = phases.findIndex(p => p.id === phase);
+
+        if (phase === "hearing") {
+            if (typeof step === 'number' && step < 3) return { phase, subStep: step + 1 };
+        } else if (phase === "simulation") {
+            if (typeof step === 'number' && step < 4) return { phase, subStep: step + 1 };
+            if (step === 4) return { phase, subStep: "insight-0" };
+            if (typeof step === 'string' && step.startsWith('insight-')) {
+                const idx = parseInt(step.split('-')[1]);
+                if (idx < 4) return { phase, subStep: `insight-${idx + 1}` };
             }
-            return phases[currentIdx + 1];
-        }
-        if (currentPhase === "simulation") {
-            if (typeof subStep === 'number' && subStep < 4) {
-                return { id: "simulation", title: "分析結果 (詳細)", desc: "深掘り分析", subStep: subStep + 1 };
-            }
-            if (subStep === 4) {
-                return { id: "simulation", title: "分析結果 (考察)", desc: "成功事例の活用", subStep: "insight-0" };
-            }
-            if (typeof subStep === 'string' && subStep.startsWith('insight-')) {
-                const idx = parseInt(subStep.split('-')[1]);
-                if (idx < 4) return { id: "simulation", title: "成功事例 (次へ)", desc: "具体的なケーススタディ", subStep: `insight-${idx + 1}` };
-                return nextPhaseBase;
-            }
-        }
-        if (currentPhase === "solution" && typeof subStep === 'number' && subStep < 2) {
-            return { id: "solution", title: "解決策提示 (次へ)", desc: "具体的なプランニング", subStep: subStep + 1 };
         }
 
-        return nextPhaseBase;
+        let nextIdx = pIdx + 1;
+        // ヒアリング未入力の場合はシミュレーションを飛ばす
+        if (nextIdx < phases.length && phases[nextIdx].id === "simulation") {
+            if (!userData || !userData.name.trim()) {
+                nextIdx++;
+            }
+        }
+
+        const nextP = phases[nextIdx];
+        if (nextP) return { phase: nextP.id, subStep: 0 };
+        return null;
     };
 
-    const nextStepHighlight = getNextStepInfo();
+    const getPrevState = (phase: Phase, step: number | string): { phase: Phase; subStep: number | string } | null => {
+        const pIdx = phases.findIndex(p => p.id === phase);
+
+        if (phase === "hearing") {
+            if (typeof step === 'number' && step > 0) return { phase, subStep: step - 1 };
+        } else if (phase === "simulation") {
+            if (typeof step === 'string' && step.startsWith('insight-')) {
+                const idx = parseInt(step.split('-')[1]);
+                if (idx > 0) return { phase, subStep: `insight-${idx - 1}` };
+                return { phase, subStep: 4 };
+            }
+            if (typeof step === 'number' && step > 0) return { phase, subStep: step - 1 };
+        }
+
+        let prevIdx = pIdx - 1;
+        // ヒアリング未入力の場合はシミュレーションを飛ばす
+        if (prevIdx >= 0 && phases[prevIdx].id === "simulation") {
+            if (!userData || !userData.name.trim()) {
+                prevIdx--;
+            }
+        }
+
+        const prevP = phases[prevIdx];
+        if (prevP) {
+            return { phase: prevP.id, subStep: 0 };
+        }
+        return null;
+    };
+
+    const handlePhaseChange = (phase: Phase, mode: 'live' | 'explorer', targetSubStep: number | string = 0) => {
+        if (mode === 'live') {
+            setCurrentPhase(phase);
+            setLiveSubStep(targetSubStep);
+            setSubStep(targetSubStep);
+            // DO NOT sync phase change back to main app
+        } else {
+            // Smooth transition for explorer
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setExplorerPhase(phase);
+                setExplorerSubStep(targetSubStep);
+                setTimeout(() => setIsTransitioning(false), 50);
+            }, 200);
+        }
+    };
+
+    const handleHearingSubmit = (data: UserInput, mode: 'live' | 'explorer') => {
+        setUserData(data);
+
+        // Sync data to main app for consistency, but NOT phase
+        const channel = new BroadcastChannel("gfs-sync");
+        channel.postMessage({ type: "SYNC_STATE", userData: data });
+        channel.close();
+
+        // Skip simulation if no name
+        const targetPhase = !data.name.trim() ? "solution" : "simulation";
+        handlePhaseChange(targetPhase, mode, 0);
+    };
+
+    const handleExplorerNext = () => {
+        const next = getNextState(explorerPhase, explorerSubStep);
+        if (next) {
+            handlePhaseChange(next.phase, 'explorer', next.subStep);
+        }
+    };
+
+    const handleExplorerPrev = () => {
+        const prev = getPrevState(explorerPhase, explorerSubStep);
+        if (prev) {
+            handlePhaseChange(prev.phase, 'explorer', prev.subStep);
+        }
+    };
+
+    const handleTimelineClick = (phase: Phase) => {
+        handlePhaseChange(phase, 'explorer', 0);
+        setSelectedPreview('explorer');
+    };
+
+    const explorerTitle = phases.find(p => p.id === explorerPhase)?.title;
 
     // オートスクロール制御
     useEffect(() => {
@@ -113,7 +228,7 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
     const formatContent = (text: string) => {
         if (!text) return "";
-        return text.replace(/@@/g, userData?.name || "お客様");
+        return text.replace(/@@/g, userData?.name || "あなた");
     };
 
     return (
@@ -203,61 +318,138 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                                             <span className="text-[10px] font-black text-slate-900 tracking-[0.2em] uppercase">LIVE</span>
                                         </div>
-                                        <div className="bg-white rounded-[2rem] border-2 border-red-500 shadow-2xl shadow-red-100 overflow-hidden">
-                                            <div className="aspect-video bg-slate-100 relative overflow-hidden flex items-center justify-center">
-                                                <div className="origin-top scale-[0.4] absolute top-4 w-[1000px]">
-                                                    {currentPhase === "agenda" && <Agenda onGoToPhase={() => { }} userData={userData} isPreview />}
-                                                    {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
+                                        <div className={cn(
+                                            "bg-white rounded-[2rem] border-2 shadow-2xl overflow-hidden transition-all duration-300 relative group/live",
+                                            selectedPreview === 'live' ? "border-blue-600 shadow-blue-100 ring-4 ring-blue-600/20" : "border-red-500 shadow-red-100"
+                                        )}>
+                                            <div className="aspect-video bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
+                                                <div className="w-[1000px] shrink-0 pt-10 pb-40" style={{ zoom: 0.4 }}>
+                                                    {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData} isPreview />}
+                                                    {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof liveSubStep === 'number' ? liveSubStep : 0} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
                                                     {currentPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                    {currentPhase === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={subStep} />}
-                                                    {currentPhase === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={subStep} />}
-                                                    {currentPhase === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={subStep} />}
-                                                    {currentPhase === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={subStep} />}
+                                                    {currentPhase === "hearing" && <Phase1Hearing onSubmit={(d) => handleHearingSubmit(d, 'live')} onBack={() => handlePhaseChange("threeSteps", 'live')} onGoToAgenda={() => handlePhaseChange("agenda", 'live')} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
+                                                    {currentPhase === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
+                                                    {currentPhase === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
+                                                    {currentPhase === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
                                                 </div>
-                                                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/5 to-transparent pointer-events-none sticky top-[100%]" />
+
+                                                {/* Selection Overlay */}
+                                                {selectedPreview !== 'live' && (
+                                                    <div
+                                                        className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center cursor-pointer z-[100] group/overlay"
+                                                        onClick={() => setSelectedPreview('live')}
+                                                    >
+                                                        <div className="bg-white/90 px-4 py-2 rounded-full shadow-xl flex items-center gap-2 transform transition-transform group-hover/overlay:scale-110">
+                                                            <Activity className="w-4 h-4 text-blue-600" />
+                                                            <span className="text-xs font-black text-slate-900">操作する</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="p-4 bg-white">
+                                            <div className="p-4 bg-white flex justify-between items-center">
                                                 <h4 className="text-sm font-black text-slate-900">
                                                     {phases.find(p => p.id === currentPhase)?.title}
                                                     <span className="ml-2 text-[10px] text-slate-400 font-bold">
                                                         {typeof subStep === 'number' ? `Step ${subStep + 1}` : subStep}
                                                     </span>
                                                 </h4>
+                                                {selectedPreview === 'live' && (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setSelectedPreview(null); }}
+                                                        className="text-[10px] font-bold text-blue-600 hover:underline"
+                                                    >
+                                                        解除
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* NEXT Slide */}
+                                    {/* EXPLORER Slide (Next/Peek) */}
                                     <div className="space-y-3">
-                                        <div className="flex items-center gap-2 px-2 opacity-50">
-                                            <div className="w-2 h-2 rounded-full bg-slate-400" />
-                                            <span className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">NEXT PREVIEW</span>
+                                        <div className="flex items-center justify-between px-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-blue-600" />
+                                                <span className="text-[10px] font-black text-slate-900 tracking-[0.2em] uppercase">EXPLORER</span>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => {
+                                                        setExplorerPhase(currentPhase);
+                                                        setExplorerSubStep(subStep);
+                                                    }}
+                                                    className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+                                                    title="現在に同期"
+                                                >
+                                                    <Activity className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={handleExplorerPrev}
+                                                    className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm group/btn"
+                                                >
+                                                    <ChevronRight className="w-4 h-4 text-slate-400 rotate-180 group-hover/btn:text-blue-600" />
+                                                </button>
+                                                <button
+                                                    onClick={handleExplorerNext}
+                                                    className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm group/btn"
+                                                >
+                                                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover/btn:text-blue-600" />
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden grayscale-[0.2] opacity-80 transition-all hover:opacity-100 hover:grayscale-0">
-                                            <div className="aspect-video bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
-                                                <div className="origin-top scale-[0.4] absolute top-4 w-[1000px]">
-                                                    {nextStepHighlight?.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
-                                                    {nextStepHighlight?.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                    {nextStepHighlight?.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {nextStepHighlight?.id === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {nextStepHighlight?.id === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {nextStepHighlight?.id === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {(!nextStepHighlight || ((nextStepHighlight.id === "simulation" || nextStepHighlight.id === "solution" || nextStepHighlight.id === "closing") && !simulationResult)) && (
-                                                        <div className="flex flex-col items-center justify-center h-full text-slate-400 bg-slate-50/50">
-                                                            <Clock className="w-16 h-16 mb-4 opacity-10" />
-                                                            <p className="text-xl font-bold italic">End of session</p>
-                                                        </div>
-                                                    )}
+                                        <div className={cn(
+                                            "bg-white rounded-[2rem] border shadow-xl overflow-hidden transition-all duration-500 relative group/explorer",
+                                            selectedPreview === 'explorer' ? "border-blue-600 ring-4 ring-blue-600/20" : "border-blue-100 hover:border-blue-300"
+                                        )}>
+                                            <div className={cn(
+                                                "aspect-video bg-slate-50 relative overflow-y-auto custom-scrollbar flex justify-center border-b border-slate-100 transition-all duration-300",
+                                                isTransitioning ? "opacity-0 scale-98 blur-sm" : "opacity-100 scale-100 blur-0"
+                                            )}>
+                                                <div className="w-[1000px] shrink-0 pt-10 pb-40" style={{ zoom: 0.4 }}>
+                                                    {explorerPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'explorer')} userData={userData} isPreview />}
+                                                    {explorerPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof explorerSubStep === 'number' ? explorerSubStep : 0} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                    {explorerPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
+                                                    {explorerPhase === "hearing" && <Phase1Hearing onSubmit={(d) => handleHearingSubmit(d, 'explorer')} onBack={() => handlePhaseChange("threeSteps", 'explorer')} onGoToAgenda={() => handlePhaseChange("agenda", 'explorer')} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                    {explorerPhase === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                    {explorerPhase === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                    {explorerPhase === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
                                                 </div>
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+                                                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/5 to-transparent pointer-events-none sticky top-[100%]" />
+
+                                                {/* Selection Overlay */}
+                                                {selectedPreview !== 'explorer' && (
+                                                    <div
+                                                        className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center cursor-pointer z-[100] group/overlay"
+                                                        onClick={() => setSelectedPreview('explorer')}
+                                                    >
+                                                        <div className="bg-white/90 px-4 py-2 rounded-full shadow-xl flex items-center gap-2 transform transition-transform group-hover/overlay:scale-110">
+                                                            <Search className="w-4 h-4 text-blue-600" />
+                                                            <span className="text-xs font-black text-slate-900">操作する</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="p-4 bg-slate-50/50">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <h4 className="text-xs font-black text-slate-600 tracking-tight">{nextStepHighlight?.title || "完了"}</h4>
-                                                        <p className="text-[9px] font-bold text-slate-400 uppercase">{nextStepHighlight?.desc}</p>
+                                                        <h4 className="text-xs font-black text-slate-600 tracking-tight">{explorerTitle}</h4>
+                                                        <p className="text-[9px] font-bold text-slate-400 uppercase">
+                                                            Slide/Step: {typeof explorerSubStep === 'number' ? explorerSubStep + 1 : explorerSubStep}
+                                                        </p>
                                                     </div>
-                                                    <ArrowRight className="w-4 h-4 text-slate-300" />
+                                                    {selectedPreview === 'explorer' ? (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setSelectedPreview(null); }}
+                                                            className="text-[10px] font-bold text-blue-600 hover:underline"
+                                                        >
+                                                            解除
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
+                                                            <Activity className="w-3.5 h-3.5 text-blue-600" />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -272,24 +464,35 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                     </div>
                                     <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
                                         {phases.map((p, idx) => {
+                                            if (p.hideInTimeline) return null;
                                             const isPast = idx < currentIdx;
                                             const isCurrent = p.id === currentPhase;
                                             return (
-                                                <div key={p.id} className="relative flex items-center gap-4">
+                                                <button
+                                                    key={p.id}
+                                                    className="relative flex items-center gap-4 w-full text-left transition-all hover:translate-x-1"
+                                                    onClick={() => handleTimelineClick(p.id as Phase)}
+                                                >
                                                     <div className={cn(
                                                         "absolute -left-[1.35rem] w-3 h-3 rounded-full border-2 border-white z-10 transition-colors duration-500",
                                                         isCurrent ? "bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)] animate-pulse" : isPast ? "bg-blue-300" : "bg-slate-200"
                                                     )} />
                                                     <div className={cn(
                                                         "flex-1 p-3 rounded-2xl border transition-all duration-300",
-                                                        isCurrent ? "bg-blue-50/50 border-blue-100" : "bg-transparent border-transparent"
+                                                        isCurrent ? "bg-blue-50/50 border-blue-100" : p.id === explorerPhase ? "bg-blue-50 border-blue-200" : "bg-transparent border-transparent"
                                                     )}>
                                                         <span className={cn(
                                                             "text-[11px] font-black",
-                                                            isCurrent ? "text-blue-900" : isPast ? "text-slate-500" : "text-slate-300"
-                                                        )}>{p.title}</span>
+                                                            isCurrent ? "text-blue-900" : p.id === explorerPhase ? "text-blue-600" : isPast ? "text-slate-500" : "text-slate-300"
+                                                        )}>
+                                                            {p.id === "threeSteps" || p.id === "hearing"
+                                                                ? `Section 02: ${userData?.name ? userData.name + '様の未来予想図' : 'あなたの目標を教えてください'}`
+                                                                : p.id === "solution"
+                                                                    ? `Section 03: ${userData?.name ? userData.name + '様に合う投資' : 'あなたに合う投資'}`
+                                                                    : p.title}
+                                                        </span>
                                                     </div>
-                                                </div>
+                                                </button>
                                             );
                                         })}
                                     </div>

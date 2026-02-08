@@ -13,7 +13,7 @@ import Image from "next/image";
 
 interface Phase4SolutionProps {
     userData: UserInput;
-    simulationResult: SimulationResult;
+    simulationResult?: SimulationResult;
     onNext?: () => void;
     onBack?: () => void;
     onGoToAgenda?: () => void;
@@ -23,7 +23,7 @@ interface Phase4SolutionProps {
 }
 
 export default function Phase4Solution({ userData, simulationResult, onNext, onBack, onGoToAgenda, onSubStepChange, subStep, isPreview = false }: Phase4SolutionProps) {
-    const [showContent, setShowContent] = useState(isPreview);
+    const [showContent, setShowContent] = useState(true);
     const [activeSection, setActiveSection] = useState(isPreview && typeof subStep === 'number' ? subStep : 0);
     const [showGoalDetail, setShowGoalDetail] = useState(false);
     const [showPracticeDetail, setShowPracticeDetail] = useState(false);
@@ -33,12 +33,16 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
     const [revealedBad, setRevealedBad] = useState(false);
     const [revealedGood, setRevealedGood] = useState(false);
 
+    // Sync subStep with activeSection in preview mode
     useEffect(() => {
-        setShowContent(true);
-    }, []);
+        if (isPreview && typeof subStep === 'number') {
+            setActiveSection(subStep);
+        }
+    }, [subStep, isPreview]);
+
 
     const nextSection = () => {
-        if (activeSection < 0) { // Future sections
+        if (activeSection < 4) { // Assuming 5 sections total based on common pattern, or use sections.length if available
             const next = activeSection + 1;
             setActiveSection(next);
             onSubStepChange?.(next);
@@ -60,10 +64,15 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
     return (
         <div className="min-h-screen relative overflow-hidden bg-white">
             {/* ナビゲーション */}
-            <div className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 py-4 px-6 flex justify-between items-center">
-                <Button variant="ghost" size="sm" onClick={prevSection} className="text-slate-600">
-                    <ChevronLeft className="w-4 h-4 mr-1" /> {activeSection === 0 ? "戻る" : "前へ"}
-                </Button>
+            <div className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 py-3 px-6 flex justify-between items-center">
+                <div className="flex items-center gap-6">
+                    <Button variant="ghost" size="sm" onClick={prevSection} className="text-slate-600">
+                        <ChevronLeft className="w-4 h-4 mr-1" /> {activeSection === 0 ? "戻る" : "前へ"}
+                    </Button>
+                    <div className="flex items-center gap-3 border-l border-slate-200 pl-6 h-8">
+                        <Image src="/images/gfs_logo_navy.png" alt="GFS" width={60} height={60} className="object-contain" />
+                    </div>
+                </div>
                 <div className="flex gap-2">
                     <div className="w-8 h-2 rounded-full bg-blue-600 transition-all duration-300" />
                 </div>
@@ -81,7 +90,7 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                             <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/5 backdrop-blur rounded-full mb-6 ring-1 ring-slate-900/10">
                                 <span className="text-blue-600 font-bold">Section 03</span>
                                 <span className="text-slate-400">/</span>
-                                <span className="text-slate-900">{userData.name}様に合う投資</span>
+                                <span className="text-slate-900">{(userData?.name ? `${userData.name}様` : "あなた")}に合う投資</span>
                             </div>
                             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-8 whitespace-nowrap">
                                 目標を達成するための本質的な3つのポイント
@@ -116,18 +125,37 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                                 </div>
 
                                 {/* ②体系的に学ぶ */}
-                                <div
-                                    className="absolute bottom-4 left-0 -translate-x-1/3 translate-y-1/2 flex flex-col items-center text-center w-64 cursor-pointer group/learn transform hover:-translate-y-1 transition-all duration-300"
-                                    onClick={() => setShowLearningComparison(true)}
-                                >
-                                    <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">
-                                        <div className="absolute inset-0 rounded-full bg-blue-600 opacity-0 group-hover/learn:opacity-10 transition-opacity group-hover/learn:animate-ping" />
-                                        <Layers className="w-10 h-10 text-blue-900 group-hover/learn:text-blue-600 transition-colors" />
+                                <div className="absolute bottom-4 left-0 -translate-x-1/3 translate-y-1/2 flex items-center">
+                                    {/* 免許の例え (黄色) - 体系的に学ぶの左側に配置 */}
+                                    <div className="mr-8 group/license-btn">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowLicenseMetaphor(true);
+                                            }}
+                                            className="w-16 h-16 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-xl transition-all duration-500 transform hover:scale-110 hover:shadow-amber-200/50 active:scale-95 border-4 border-white"
+                                        >
+                                            <Car className="w-8 h-8" />
+                                        </button>
+                                        <div className="absolute left-0 -bottom-14 whitespace-nowrap bg-amber-500 text-white text-[10px] font-black px-4 py-2 rounded-lg pointer-events-none opacity-0 group-hover/license-btn:opacity-100 transition-all duration-300 transform -translate-y-1 group-hover/license-btn:translate-y-0 shadow-lg z-50">
+                                            免許の例えを確認
+                                            <div className="absolute left-6 top-0 -translate-x-1/2 -translate-y-full border-8 border-transparent border-b-amber-500" />
+                                        </div>
                                     </div>
-                                    <h4 className="text-xl font-black text-blue-900 mb-1 group-hover/learn:text-blue-600 transition-colors">②体系的に学ぶ</h4>
-                                    <p className="text-slate-500 text-sm font-medium whitespace-nowrap">「断片的な知識」を「活かせる線」へ繋げる</p>
-                                    <div className="mt-2 text-blue-500 text-xs font-bold opacity-0 group-hover/learn:opacity-100 transition-opacity flex items-center gap-1">
-                                        比較を見る <ArrowRight className="w-3 h-3" />
+
+                                    <div
+                                        className="flex flex-col items-center text-center w-64 cursor-pointer group/learn transform hover:-translate-y-1 transition-all duration-300"
+                                        onClick={() => setShowLearningComparison(true)}
+                                    >
+                                        <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">
+                                            <div className="absolute inset-0 rounded-full bg-blue-600 opacity-0 group-hover/learn:opacity-10 transition-opacity group-hover/learn:animate-ping" />
+                                            <Layers className="w-10 h-10 text-blue-900 group-hover/learn:text-blue-600 transition-colors" />
+                                        </div>
+                                        <h4 className="text-xl font-black text-blue-900 mb-1 group-hover/learn:text-blue-600 transition-colors">②体系的に学ぶ</h4>
+                                        <p className="text-slate-500 text-sm font-medium whitespace-nowrap">「断片的な知識」を「活かせる線」へ繋げる</p>
+                                        <div className="mt-2 text-blue-500 text-xs font-bold opacity-0 group-hover/learn:opacity-100 transition-opacity flex items-center gap-1">
+                                            比較を見る <ArrowRight className="w-3 h-3" />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -373,20 +401,6 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
 
                                         {/* キャプション/注釈エリア */}
                                         <div className="mt-12 flex items-center justify-center relative min-h-[80px]">
-                                            {/* 車の免許の例え (黄色) - 左下に固定配置 */}
-                                            <div className="absolute left-4 bottom-4 group/btn">
-                                                <button
-                                                    onClick={() => setShowLicenseMetaphor(true)}
-                                                    className="w-20 h-20 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-2xl transition-all duration-500 transform hover:scale-110 hover:shadow-amber-200/50 active:scale-95 border-4 border-white"
-                                                >
-                                                    <Car className="w-10 h-10" />
-                                                </button>
-                                                <div className="absolute left-0 bottom-full mb-4 whitespace-nowrap bg-amber-500 text-white text-[10px] font-black px-4 py-2 rounded-lg pointer-events-none opacity-0 group-hover/btn:opacity-100 transition-all duration-300 transform translate-y-1 group-hover/btn:translate-y-0 shadow-xl">
-                                                    投資と車の例え話を確認
-                                                    <div className="absolute left-4 top-full border-8 border-transparent border-t-amber-500" />
-                                                </div>
-                                            </div>
-
                                             <Button
                                                 onClick={() => setShowLearningComparison(false)}
                                                 className="bg-slate-900 hover:bg-black text-white font-black px-12 h-16 rounded-full shadow-lg group flex items-center gap-2"
@@ -401,7 +415,7 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                         </div>
 
                         <div className="mt-32 text-center">
-                            <Button onClick={nextSection} size="lg" className="bg-blue-600 hover:bg-black text-white font-black px-12 h-16 rounded-full shadow-lg group">
+                            <Button onClick={onNext} size="lg" className="bg-blue-600 hover:bg-black text-white font-black px-12 h-16 rounded-full shadow-lg group">
                                 効率的な学習方法とは？
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </Button>
@@ -497,180 +511,185 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                         </div>
                     </div>
                 </div>
-            )}
+            )
+            }
 
             {/* Deep Dive Slide: Driver's License Metaphor (Yellow Icon) */}
-            {showLicenseMetaphor && (
-                <div
-                    className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-500"
-                    onClick={() => setShowLicenseMetaphor(false)}
-                >
+            {
+                showLicenseMetaphor && (
                     <div
-                        className="bg-white rounded-[3rem] overflow-hidden max-w-5xl w-full max-h-[90vh] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row animate-in zoom-in-95 duration-500"
-                        onClick={(e) => e.stopPropagation()}
+                        className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-500"
+                        onClick={() => setShowLicenseMetaphor(false)}
                     >
-                        {/* Left: Illustration */}
-                        <div className="md:w-1/2 relative bg-slate-900 min-h-[300px]">
-                            <Image
-                                src="/images/learning_detail.png"
-                                alt="Driver's License Metaphor"
-                                fill
-                                className="object-cover opacity-90"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-transparent flex items-end p-8 md:p-12">
-                                <div className="text-white">
-                                    <div className="bg-amber-400 w-16 h-1 mb-6"></div>
-                                    <h5 className="text-3xl font-black mb-4 leading-tight text-white">投資も「運転」と同じ。</h5>
-                                    <p className="text-slate-100 text-lg leading-relaxed opacity-90">
-                                        目的地が決まっても、<br />
-                                        免許がなければハンドルは握れません。<br />
-                                        正しい知識こそが、あなたを守る免許証です。
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right: Content */}
-                        <div className="md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-white relative">
-                            <button
-                                onClick={() => setShowLicenseMetaphor(false)}
-                                className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all shadow-sm"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-
-                            <div className="mb-12">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
-                                    <Layers className="w-3 h-3" /> Skill Mastery
-                                </div>
-                                <h3 className="text-4xl font-black text-slate-900 leading-tight">なぜ「体系的に」<br /><span className="text-amber-500">学ぶ</span>必要があるのか？</h3>
-                            </div>
-
-                            <div className="space-y-10">
-                                <div className="flex gap-6 group">
-                                    <div className="w-14 h-14 rounded-2xl bg-amber-50/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                                        <div className="text-2xl font-black text-amber-600 opacity-40">01</div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-xl font-black text-slate-900 mb-2">「鉄の塊」を制御するために</h4>
-                                        <p className="text-slate-500 leading-relaxed font-medium">
-                                            目的地が決まり、どれだけ遠出をしたいと思っても、免許がない状態で運転はできません。
-                                            あの<span className="text-slate-900 font-bold underline decoration-amber-200 underline-offset-4 decoration-4">「鉄の塊」</span>を安全に動かすには、正しい知識が必要です。
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-6 group">
-                                    <div className="w-14 h-14 rounded-2xl bg-amber-50/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                                        <div className="text-2xl font-black text-amber-600 opacity-40">02</div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-xl font-black text-slate-900 mb-2">教習所での「練習」の重要性</h4>
-                                        <p className="text-slate-500 leading-relaxed font-medium">
-                                            誰もが<span className="text-slate-900 font-bold">教習所などで勉強し、練習を繰り返して</span>初めて安全運転ができるようになります。
-                                            投資においても、全く同じステップが必要不可欠なのです。
+                        <div
+                            className="bg-white rounded-[3rem] overflow-hidden max-w-5xl w-full max-h-[90vh] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row animate-in zoom-in-95 duration-500"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Left: Illustration */}
+                            <div className="md:w-1/2 relative bg-slate-900 min-h-[300px]">
+                                <Image
+                                    src="/images/learning_detail.png"
+                                    alt="Driver's License Metaphor"
+                                    fill
+                                    className="object-cover opacity-90"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-transparent flex items-end p-8 md:p-12">
+                                    <div className="text-white">
+                                        <div className="bg-amber-400 w-16 h-1 mb-6"></div>
+                                        <h5 className="text-3xl font-black mb-4 leading-tight text-white">投資も「運転」と同じ。</h5>
+                                        <p className="text-slate-100 text-lg leading-relaxed opacity-90">
+                                            目的地が決まっても、<br />
+                                            免許がなければハンドルは握れません。<br />
+                                            正しい知識こそが、あなたを守る免許証です。
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <Button
-                                onClick={() => setShowLicenseMetaphor(false)}
-                                size="lg"
-                                className="mt-16 w-full bg-slate-900 hover:bg-black text-white font-black h-20 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-3 text-xl"
-                            >
-                                <X className="w-6 h-6" />
-                                閉じて戻る
-                            </Button>
+                            {/* Right: Content */}
+                            <div className="md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-white relative">
+                                <button
+                                    onClick={() => setShowLicenseMetaphor(false)}
+                                    className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all shadow-sm"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+
+                                <div className="mb-12">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
+                                        <Layers className="w-3 h-3" /> Skill Mastery
+                                    </div>
+                                    <h3 className="text-4xl font-black text-slate-900 leading-tight">なぜ「体系的に」<br /><span className="text-amber-500">学ぶ</span>必要があるのか？</h3>
+                                </div>
+
+                                <div className="space-y-10">
+                                    <div className="flex gap-6 group">
+                                        <div className="w-14 h-14 rounded-2xl bg-amber-50/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="text-2xl font-black text-amber-600 opacity-40">01</div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xl font-black text-slate-900 mb-2">「鉄の塊」を制御するために</h4>
+                                            <p className="text-slate-500 leading-relaxed font-medium">
+                                                目的地が決まり、どれだけ遠出をしたいと思っても、免許がない状態で運転はできません。
+                                                あの<span className="text-slate-900 font-bold underline decoration-amber-200 underline-offset-4 decoration-4">「鉄の塊」</span>を安全に動かすには、正しい知識が必要です。
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-6 group">
+                                        <div className="w-14 h-14 rounded-2xl bg-amber-50/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="text-2xl font-black text-amber-600 opacity-40">02</div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xl font-black text-slate-900 mb-2">教習所での「練習」の重要性</h4>
+                                            <p className="text-slate-500 leading-relaxed font-medium">
+                                                誰もが<span className="text-slate-900 font-bold">教習所などで勉強し、練習を繰り返して</span>初めて安全運転ができるようになります。
+                                                投資においても、全く同じステップが必要不可欠なのです。
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    onClick={() => setShowLicenseMetaphor(false)}
+                                    size="lg"
+                                    className="mt-16 w-full bg-slate-900 hover:bg-black text-white font-black h-20 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-3 text-xl"
+                                >
+                                    <X className="w-6 h-6" />
+                                    閉じて戻る
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
 
-            {showPracticeDetail && (
-                <div
-                    className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-500"
-                    onClick={() => setShowPracticeDetail(false)}
-                >
+            {
+                showPracticeDetail && (
                     <div
-                        className="bg-white rounded-[3rem] overflow-hidden max-w-5xl w-full max-h-[90vh] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row animate-in zoom-in-95 duration-500"
-                        onClick={(e) => e.stopPropagation()}
+                        className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-500"
+                        onClick={() => setShowPracticeDetail(false)}
                     >
-                        {/* Image/Illustration side */}
-                        <div className="md:w-[45%] relative bg-slate-50 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100">
-                            <div className="relative w-full h-full flex flex-col">
-                                <div className="flex-1 relative min-h-[250px] shadow-2xl rounded-2xl overflow-hidden border border-slate-200">
-                                    <Image
-                                        src="/images/mini_stock_services.png"
-                                        alt="Mini Stock Services Comparison"
-                                        fill
-                                        className="object-contain bg-white p-4"
-                                    />
-                                </div>
-                                <div className="mt-6 p-6 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3">
-                                    <AlertTriangle className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
-                                    <div>
-                                        <p className="text-blue-900 font-black text-lg mb-1">株は1株から買える時代です</p>
-                                        <p className="text-blue-700/80 text-sm font-medium leading-relaxed">
-                                            かつては数十万円必要だった株式投資も、今はスマホ一つで「数百円」から始められます。
-                                        </p>
+                        <div
+                            className="bg-white rounded-[3rem] overflow-hidden max-w-5xl w-full max-h-[90vh] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row animate-in zoom-in-95 duration-500"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Image/Illustration side */}
+                            <div className="md:w-[45%] relative bg-slate-50 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100">
+                                <div className="relative w-full h-full flex flex-col">
+                                    <div className="flex-1 relative min-h-[250px] shadow-2xl rounded-2xl overflow-hidden border border-slate-200">
+                                        <Image
+                                            src="/images/mini_stock_services.png"
+                                            alt="Mini Stock Services Comparison"
+                                            fill
+                                            className="object-contain bg-white p-4"
+                                        />
+                                    </div>
+                                    <div className="mt-6 p-6 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3">
+                                        <AlertTriangle className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
+                                        <div>
+                                            <p className="text-blue-900 font-black text-lg mb-1">株は1株から買える時代です</p>
+                                            <p className="text-blue-700/80 text-sm font-medium leading-relaxed">
+                                                かつては数十万円必要だった株式投資も、今はスマホ一つで「数百円」から始められます。
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Right: Content */}
-                        <div className="md:w-[55%] p-8 md:p-14 flex flex-col justify-center bg-white relative text-left">
-                            <button
-                                onClick={() => setShowPracticeDetail(false)}
-                                className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all shadow-sm"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
+                            {/* Right: Content */}
+                            <div className="md:w-[55%] p-8 md:p-14 flex flex-col justify-center bg-white relative text-left">
+                                <button
+                                    onClick={() => setShowPracticeDetail(false)}
+                                    className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all shadow-sm"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
 
-                            <div className="mb-10 text-left">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
-                                    <Zap className="w-3 h-3 text-blue-500 fill-blue-500" /> Start Small
+                                <div className="mb-10 text-left">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
+                                        <Zap className="w-3 h-3 text-blue-500 fill-blue-500" /> Start Small
+                                    </div>
+                                    <h3 className="text-4xl font-black text-slate-900 leading-tight">なぜ「少額」から<br /><span className="text-blue-600">実践</span>するのか？</h3>
                                 </div>
-                                <h3 className="text-4xl font-black text-slate-900 leading-tight">なぜ「少額」から<br /><span className="text-blue-600">実践</span>するのか？</h3>
+
+                                <div className="space-y-8">
+                                    <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-default">
+                                        <h4 className="text-xl font-black text-slate-900 mb-3 flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                            致命傷を避け、一歩を踏み出す
+                                        </h4>
+                                        <p className="text-slate-600 leading-relaxed">
+                                            最初から大きなリスクを取る必要はありません。数百円から始めて<span className="text-slate-900 font-bold">「まずは正しい一歩」</span>を踏み出す。
+                                            多くの証券会社が提供するミニ株なら、それが可能です。
+                                        </p>
+                                    </div>
+
+                                    <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-default">
+                                        <h4 className="text-xl font-black text-slate-900 mb-3 flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                            「自分事」として学ぶための最適解
+                                        </h4>
+                                        <p className="text-slate-600 leading-relaxed">
+                                            教科書を100回読むより、100円の株を1株買う方が遥かに学びになります。
+                                            自分のお金が動く感覚こそが、<span className="text-slate-900 font-bold">市場と向き合う「真の経験値」</span>へと変わります。
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    onClick={() => setShowPracticeDetail(false)}
+                                    size="lg"
+                                    className="mt-12 w-full bg-slate-900 text-white font-black h-20 rounded-2xl shadow-xl hover:bg-black transition-all text-xl"
+                                >
+                                    閉じて戻る
+                                </Button>
                             </div>
-
-                            <div className="space-y-8">
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-default">
-                                    <h4 className="text-xl font-black text-slate-900 mb-3 flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                        致命傷を避け、一歩を踏み出す
-                                    </h4>
-                                    <p className="text-slate-600 leading-relaxed">
-                                        最初から大きなリスクを取る必要はありません。数百円から始めて<span className="text-slate-900 font-bold">「まずは正しい一歩」</span>を踏み出す。
-                                        多くの証券会社が提供するミニ株なら、それが可能です。
-                                    </p>
-                                </div>
-
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-default">
-                                    <h4 className="text-xl font-black text-slate-900 mb-3 flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                        「自分事」として学ぶための最適解
-                                    </h4>
-                                    <p className="text-slate-600 leading-relaxed">
-                                        教科書を100回読むより、100円の株を1株買う方が遥かに学びになります。
-                                        自分のお金が動く感覚こそが、<span className="text-slate-900 font-bold">市場と向き合う「真の経験値」</span>へと変わります。
-                                    </p>
-                                </div>
-                            </div>
-
-                            <Button
-                                onClick={() => setShowPracticeDetail(false)}
-                                size="lg"
-                                className="mt-12 w-full bg-slate-900 text-white font-black h-20 rounded-2xl shadow-xl hover:bg-black transition-all text-xl"
-                            >
-                                閉じて戻る
-                            </Button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <style jsx>{`
                 @keyframes grow {
@@ -691,6 +710,6 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                     to { stroke-dashoffset: -100; }
                 }
             `}</style>
-        </div>
+        </div >
     );
 }

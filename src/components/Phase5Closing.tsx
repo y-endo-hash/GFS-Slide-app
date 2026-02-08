@@ -14,7 +14,7 @@ import Image from "next/image";
 
 interface Phase5ClosingProps {
     userData: UserInput;
-    simulationResult: SimulationResult;
+    simulationResult?: SimulationResult;
     onBack?: () => void;
     onGoToAgenda?: () => void;
     onSubStepChange?: (subStep: number | string) => void;
@@ -27,11 +27,18 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
     const [showPlan, setShowPlan] = useState(false);
     const [showContent, setShowContent] = useState(isPreview);
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-    const [activeStep, setActiveStep] = useState(0); // 0: GFS Intro, 1: Proposal
+    const [activeStep, setActiveStep] = useState(isPreview && typeof subStep === 'number' ? subStep : 0);
 
     useEffect(() => {
         if (!isPreview) setShowContent(true);
     }, [isPreview]);
+
+    // Sync from prop (for preview mode)
+    useEffect(() => {
+        if (isPreview && typeof subStep === 'number' && subStep !== activeStep) {
+            setActiveStep(subStep);
+        }
+    }, [subStep, isPreview, activeStep]);
 
     const handleInterest = (value: "yes" | "no") => {
         setInterest(value);
@@ -105,21 +112,21 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
                     alt=""
                     width={220}
                     height={220}
-                    className="absolute -top-10 -left-10 opacity-10 animate-float-slow"
+                    className="absolute -top-10 -left-10 opacity-20 animate-float-slow"
                 />
                 <Image
                     src="/mascot/mascot_happy.png"
                     alt=""
                     width={200}
                     height={200}
-                    className="absolute top-1/4 -right-10 opacity-10 animate-float-delayed"
+                    className="absolute top-1/4 -right-10 opacity-20 animate-float-delayed"
                 />
                 <Image
                     src="/mascot/mascot_phone.png"
                     alt=""
                     width={180}
                     height={180}
-                    className="absolute -bottom-10 left-1/3 opacity-10 animate-bounce-gentle"
+                    className="absolute -bottom-10 left-1/3 opacity-20 animate-bounce-gentle"
                 />
             </div>
 
@@ -159,7 +166,7 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
                                     </div>
 
 
-                                    <h3 className="text-3xl md:text-5xl font-black mb-12 leading-tight">
+                                    <h3 className="text-2xl md:text-3xl font-black mb-12 leading-tight">
                                         <span className="bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent whitespace-nowrap">GFSを使って一緒に見ていこう！</span>
                                     </h3>
 
@@ -236,10 +243,10 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
                                     <span className="text-slate-900">あなた専用の投資戦略と今後のお話</span>
                                 </div>
                                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-2">
-                                    {userData.name}様へのご提案
+                                    {userData.name || "あなた"}様へのご提案
                                 </h1>
                                 <p className="text-slate-500 font-medium">
-                                    「{userData.investmentGoal}」を実現するための最後のステップ
+                                    {userData.investmentGoal ? `「${userData.investmentGoal}」を実現するための最後のステップ` : "理想の未来を実現するための最後のステップ"}
                                 </p>
                             </div>
 
@@ -249,18 +256,33 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
                                     <div className="grid md:grid-cols-3 gap-6 text-center">
                                         <div>
                                             <p className="text-sm opacity-80 mb-1">目標</p>
-                                            <p className="text-xl font-bold">{userData.investmentGoal}</p>
+                                            <p className="text-xl font-bold">{userData.investmentGoal || "理想の資産形成"}</p>
                                         </div>
-                                        <div>
-                                            <p className="text-sm opacity-80 mb-1">{userData.targetPeriod}年後の予測資産</p>
-                                            <p className="text-2xl font-bold">{formatManYen(simulationResult.gfsEndValue)}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm opacity-80 mb-1">預金との差額</p>
-                                            <p className="text-2xl font-bold text-amber-300">
-                                                +{formatManYen(simulationResult.gfsEndValue - simulationResult.savingsEndValue)}
-                                            </p>
-                                        </div>
+                                        {simulationResult ? (
+                                            <>
+                                                <div>
+                                                    <p className="text-sm opacity-80 mb-1">{userData.targetPeriod}年後の予測資産</p>
+                                                    <p className="text-2xl font-bold">{formatManYen(simulationResult.gfsEndValue)}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm opacity-80 mb-1">預金との差額</p>
+                                                    <p className="text-2xl font-bold text-amber-300">
+                                                        +{formatManYen(simulationResult.gfsEndValue - simulationResult.savingsEndValue)}
+                                                    </p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div>
+                                                    <p className="text-sm opacity-80 mb-1">目標までの期間</p>
+                                                    <p className="text-2xl font-bold">{userData.targetPeriod > 0 ? `${userData.targetPeriod}年` : "最短期間"}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm opacity-80 mb-1">最適な投資戦略</p>
+                                                    <p className="text-2xl font-bold text-amber-300">GFSで構築</p>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>

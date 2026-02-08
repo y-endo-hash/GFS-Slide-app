@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GFS投資相談AIエージェント | 投資ロードマップ診断",
-  description: "GFS AIがあなた専用の投資ロードマップを作成し、目標達成への最適なプランをご提案します。",
+  title: "GFS投資相談 | 投資ロードマップ診断",
+  description: "GFSがあなた専用の投資ロードマップを作成し、目標達成への最適なプランをご提案します。",
 };
 
 export default function RootLayout({

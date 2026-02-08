@@ -45,8 +45,17 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
 
     // ステップが切り替わったときにトップにスクロール
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    }, [step]);
+        if (!isPreview) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, [step, isPreview]);
+
+    // Sync from prop (for preview mode)
+    useEffect(() => {
+        if (isPreview && typeof subStep === 'number' && subStep !== step) {
+            setStep(subStep);
+        }
+    }, [subStep, isPreview, step]);
 
     const questions = [
         {
@@ -103,10 +112,22 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
     const handleNext = () => {
         if (validateStep(step)) {
             if (step < 3) {
-                setStep(step + 1);
+                const next = step + 1;
+                setStep(next);
+                onSubStepChange?.(next);
             } else {
                 handleSubmit();
             }
+        }
+    };
+
+    const handleBack = () => {
+        if (step > 0) {
+            const prev = step - 1;
+            setStep(prev);
+            onSubStepChange?.(prev);
+        } else {
+            onBack();
         }
     };
 
@@ -331,13 +352,13 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
     return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-white">
             {/* 背景のマスコット画像 */}
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none overflow-visible">
                 <Image
                     src="/mascot/mascot_cheer_blue.png"
                     alt=""
                     width={200}
                     height={200}
-                    className="absolute -top-10 -left-10 opacity-10 animate-float-slow"
+                    className="absolute top-4 left-4 opacity-10 animate-float-slow"
                 />
                 <Image
                     src="/mascot/mascot_happy.png"
@@ -414,13 +435,20 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
                             {/* ナビゲーションボタン */}
                             <div className="flex justify-between mt-8 max-w-md mx-auto">
                                 {step > 0 && (
-                                    <Button variant="outline" onClick={() => setStep(step - 1)}>
+                                    <Button variant="outline" onClick={handleBack}>
                                         戻る
                                     </Button>
                                 )}
                                 <Button
+                                    variant="ghost"
+                                    onClick={handleSubmit}
+                                    className="text-slate-400 hover:text-slate-600 font-bold"
+                                >
+                                    スキップ
+                                </Button>
+                                <Button
                                     onClick={handleNext}
-                                    className={`${step === 0 ? "w-full" : "flex-1 ml-4"} animate-pulse-border`}
+                                    className={`${step === 0 ? "flex-1 ml-4" : "flex-1 ml-4"} animate-pulse-border`}
                                 >
                                     {step < 3 ? (
                                         <>

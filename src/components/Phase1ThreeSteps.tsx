@@ -48,6 +48,13 @@ export default function Phase1ThreeSteps({ onNext, onBack, onGoToAgenda, isPrevi
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-white">
+            {/* GFSロゴ */}
+            <div className={`absolute top-8 left-8 z-30 transition-all duration-1000 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
+                <div className="flex items-center gap-3">
+                    <Image src="/images/gfs_logo_navy.png" alt="GFS" width={80} height={80} className="object-contain" />
+                </div>
+            </div>
+
             {/* 装飾的な背景 */}
             <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 opacity-50 -skew-x-12 translate-x-1/4 pointer-events-none"></div>
 

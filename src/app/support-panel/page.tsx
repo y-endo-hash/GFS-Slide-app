@@ -12,7 +12,7 @@ function SupportPanelContent() {
     useEffect(() => {
         // Build userData from query params
         const data: Partial<UserInput> = {
-            name: searchParams.get("name") || "お客様",
+            name: searchParams.get("name") || "あなた",
             age: Number(searchParams.get("age")) || 30,
             occupation: searchParams.get("occupation") || "",
             familyStructure: searchParams.get("familyStructure") || "",

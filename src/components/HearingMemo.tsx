@@ -168,28 +168,27 @@ export default function HearingMemo({
 
                 {/* メモ内容 */}
                 <div className="w-80 bg-white/95 backdrop-blur-xl border-l border-slate-200 flex flex-col overflow-hidden">
-                    {/* GFS Content & Support Window Link - Compact & Stylish */}
-                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/30 flex gap-2">
+                    {/* GFS Content & Support Window Link - Stacked & Stylish */}
+                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/30 flex flex-col gap-3">
                         <a
                             href="https://gfs.tokyo/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-white border border-slate-100 rounded-xl hover:bg-blue-50/50 hover:border-blue-200 transition-all group/link shadow-sm"
+                            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-white border border-slate-100 rounded-xl hover:bg-blue-50/50 hover:border-blue-200 transition-all group/link shadow-sm"
                         >
-                            <Sparkles className="w-3 h-3 text-blue-600" />
-                            <span className="text-[9px] font-black text-slate-600 tracking-tight">GFS CONTENTS</span>
+                            <Sparkles className="w-4 h-4 text-blue-600" />
+                            <span className="text-[10px] font-black text-slate-600 tracking-tight">GFS CONTENTS</span>
                         </a>
 
                         <button
                             onClick={openPiPSupport}
-                            className="flex-1 flex items-center justify-center gap-3 py-3 px-4 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all group/support shadow-xl shadow-slate-200 border-b-4 border-slate-700 active:border-b-0 active:translate-y-1"
+                            className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all group/support shadow-xl shadow-slate-200 border-b-4 border-slate-700 active:border-b-0 active:translate-y-1"
                         >
                             <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center group-hover/support:bg-blue-600/30 transition-colors">
                                 <Maximize2 className="w-4 h-4 text-blue-400 group-hover/support:scale-110 transition-transform" />
                             </div>
-                            <div className="flex flex-col items-start">
+                            <div className="flex flex-col items-start leading-none">
                                 <span className="text-[10px] font-black tracking-[0.1em] text-white">PRESENTER MODE</span>
-                                <span className="text-[8px] font-bold tracking-tight text-slate-400">Always on Top Assistant</span>
                             </div>
                         </button>
                     </div>

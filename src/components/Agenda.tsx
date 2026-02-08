@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { ArrowRight, Building2, BarChart3, Lightbulb, MessageCircle, FileText, ChevronRight } from "lucide-react";
+import { ArrowRight, Building2, BarChart3, Lightbulb, MessageCircle, FileText, ChevronRight, Sparkles } from "lucide-react";
 import Image from "next/image";
 
 import { UserInput, Phase } from "@/types";
@@ -42,7 +42,7 @@ export default function Agenda({ onStart, onGoToPhase, userData, isPreview = fal
         },
         {
             id: "03",
-            title: userData ? `${userData.name}様に合う投資` : "あなたに\"合う投資\"とは？",
+            title: userData ? `${userData.name}様に合う投資` : "あなたに合う投資",
             subtitle: "自分にピッタリな投資手段を考えよう",
             time: "約14分",
             icon: BarChart3,
@@ -69,34 +69,41 @@ export default function Agenda({ onStart, onGoToPhase, userData, isPreview = fal
                     alt=""
                     width={180}
                     height={180}
-                    className="absolute top-10 -left-10 opacity-15 animate-float-slow"
+                    className="absolute top-10 -left-10 opacity-20 animate-float-slow"
                 />
                 <Image
                     src="/mascot/mascot_happy.png"
                     alt=""
                     width={160}
                     height={160}
-                    className="absolute top-1/3 -right-10 opacity-15 animate-float-delayed"
+                    className="absolute top-1/3 -right-10 opacity-20 animate-float-delayed"
                 />
                 <Image
                     src="/mascot/mascot_search.png"
                     alt=""
                     width={140}
                     height={140}
-                    className="absolute bottom-20 left-10 opacity-15 animate-bounce-gentle"
+                    className="absolute bottom-20 left-10 opacity-20 animate-bounce-gentle"
                 />
                 <Image
                     src="/mascot/mascot_phone.png"
                     alt=""
                     width={150}
                     height={150}
-                    className="absolute -bottom-10 right-1/4 opacity-15 animate-float-slow"
+                    className="absolute -bottom-10 right-1/4 opacity-20 animate-float-slow"
                 />
             </div>
 
             {/* 装飾的な背景要素 */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20" />
             <div className="absolute bottom-0 right-0 w-80 h-80 bg-amber-200 rounded-full blur-3xl opacity-20" />
+
+            {/* GFSロゴ */}
+            <div className={`absolute top-8 left-8 z-20 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
+                <div className="flex items-center gap-3">
+                    <Image src="/images/gfs_logo_navy.png" alt="GFS" width={80} height={80} className="object-contain" />
+                </div>
+            </div>
 
             {/* メインコンテンツ */}
             <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
@@ -194,8 +201,15 @@ export default function Agenda({ onStart, onGoToPhase, userData, isPreview = fal
                                             <span className="text-sm text-gray-300">|</span>
                                             <span className="text-sm text-gray-400">{section.time}</span>
                                         </div>
-                                        <h3 className="text-2xl font-bold text-gray-800 group-hover:text-primary transition-colors">
-                                            {section.title}
+                                        <h3 className="text-2xl font-bold text-gray-800 group-hover:text-primary transition-colors leading-tight">
+                                            {section.id === "04" ? (
+                                                <>
+                                                    投資の学びとは？<br />
+                                                    <span className="text-lg font-medium text-gray-500">GFSを使って一緒に見ていこう！</span>
+                                                </>
+                                            ) : (
+                                                section.title
+                                            )}
                                         </h3>
                                         <p className="text-base text-gray-500">{section.subtitle}</p>
                                     </div>

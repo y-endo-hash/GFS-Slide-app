@@ -33,6 +33,9 @@ export default function Home() {
     channel.onmessage = (event) => {
       if (event.data?.type === "REQUEST_SYNC") {
         broadcastState();
+      } else if (event.data?.type === "SYNC_STATE") {
+        if (event.data.userData) setUserData(event.data.userData);
+        if (event.data.simulationResult) setSimulationResult(event.data.simulationResult);
       }
     };
 
@@ -90,6 +93,13 @@ export default function Home() {
 
   const handleHearingComplete = async (data: UserInput) => {
     setUserData(data);
+
+    // ヒアリング未入力（名前が空）の場合はシミュレーションを飛ばして解決策へ
+    if (!data.name.trim()) {
+      setPhase("solution");
+      return;
+    }
+
     setIsLoading(true);
 
     // シミュレーション計算（擬似遅延付き）
@@ -245,10 +255,10 @@ export default function Home() {
           isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
         />
 
-        {phase === "simulation" && userData && simulationResult && (
+        {phase === "simulation" && (
           <Phase3Simulation
-            userData={userData}
-            simulationResult={simulationResult}
+            userData={userData || { name: "", age: 0, investmentGoal: "", targetAmount: 0, targetPeriod: 0, initialBudget: 0, monthlySavings: 0, currentAssets: 0, monthlyInvestment: 0 }}
+            simulationResult={simulationResult || undefined}
             onNext={() => goToPhase("solution")}
             onBack={() => goToPhase("hearing")}
             onGoToAgenda={() => goToPhase("agenda")}
@@ -256,21 +266,28 @@ export default function Home() {
           />
         )}
 
-        {phase === "solution" && userData && simulationResult && (
+        {phase === "solution" && (
           <Phase4Solution
-            userData={userData}
-            simulationResult={simulationResult}
+            userData={userData || { name: "", age: 0, investmentGoal: "", targetAmount: 0, targetPeriod: 0, initialBudget: 0, monthlySavings: 0, currentAssets: 0, monthlyInvestment: 0 }}
+            simulationResult={simulationResult || undefined}
             onNext={() => goToPhase("closing")}
-            onBack={() => goToPhase("simulation")}
+            onBack={() => {
+              // ヒアリング未入力の場合はシミュレーションを飛ばしてヒアリングへ戻る
+              if (!userData || !userData.name.trim()) {
+                goToPhase("hearing");
+              } else {
+                goToPhase("simulation");
+              }
+            }}
             onGoToAgenda={() => goToPhase("agenda")}
             onSubStepChange={setSubStep}
           />
         )}
 
-        {phase === "closing" && userData && simulationResult && (
+        {phase === "closing" && (
           <Phase5Closing
-            userData={userData}
-            simulationResult={simulationResult}
+            userData={userData || { name: "", age: 0, investmentGoal: "", targetAmount: 0, targetPeriod: 0, initialBudget: 0, monthlySavings: 0, currentAssets: 0, monthlyInvestment: 0 }}
+            simulationResult={simulationResult || undefined}
             onBack={() => goToPhase("solution")}
             onGoToAgenda={() => goToPhase("agenda")}
             onSubStepChange={setSubStep}

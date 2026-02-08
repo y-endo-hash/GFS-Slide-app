@@ -15,11 +15,13 @@ interface Phase2CompanyIntroProps {
     onNext?: () => void;
     onBack?: () => void;
     onGoToAgenda?: () => void;
+    onSubStepChange?: (subStep: number) => void;
+    subStep?: number;
     isPreview?: boolean;
 }
 
-export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAgenda, isPreview = false }: Phase2CompanyIntroProps) {
-    const [currentSlide, setCurrentSlide] = useState(0);
+export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAgenda, onSubStepChange, subStep, isPreview = false }: Phase2CompanyIntroProps) {
+    const [currentSlide, setCurrentSlide] = useState(isPreview && typeof subStep === 'number' ? subStep : 0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [hoveredProgram, setHoveredProgram] = useState<number | null>(null);
     const [showExteriorOverlay, setShowExteriorOverlay] = useState(false);
@@ -30,16 +32,48 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
     // スライドが切り替わったときにコンテナ内をトップにスクロール
     useEffect(() => {
-        if (scrollContainerRef.current) {
+        if (!isPreview && scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
         }
         setHoveredProgram(null);
-    }, [currentSlide]);
+    }, [currentSlide, isPreview]);
     const [showContent, setShowContent] = useState(false);
 
     useEffect(() => {
         setShowContent(true);
     }, []);
+
+    // Sync from prop (for preview mode)
+    useEffect(() => {
+        if (isPreview && typeof subStep === 'number' && subStep !== currentSlide) {
+            setCurrentSlide(subStep);
+        }
+    }, [subStep, isPreview, currentSlide]);
+
+    const goToSlide = (index: number) => {
+        setCurrentSlide(index);
+        onSubStepChange?.(index);
+    };
+
+    const nextSlide = () => {
+        if (currentSlide < slides.length - 1) {
+            const next = currentSlide + 1;
+            setCurrentSlide(next);
+            onSubStepChange?.(next);
+        } else {
+            onNext?.();
+        }
+    };
+
+    const prevSlide = () => {
+        if (currentSlide > 0) {
+            const prev = currentSlide - 1;
+            setCurrentSlide(prev);
+            onSubStepChange?.(prev);
+        } else {
+            onBack?.();
+        }
+    };
 
     // スライドデータ（画像とカスタムを交互に配置）
     const slides = [
@@ -178,21 +212,6 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
             return () => clearInterval(timer);
         }
     }, [isAutoPlaying, slides.length]);
-
-    const goToSlide = (index: number) => {
-        setCurrentSlide(index);
-        setIsAutoPlaying(false);
-    };
-
-    const nextSlide = () => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-        setIsAutoPlaying(false);
-    };
-
-    const prevSlide = () => {
-        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-        setIsAutoPlaying(false);
-    };
 
     const renderSlide = (slide: any) => {
         // 会社情報スライド（カスタムデザイン）
@@ -578,6 +597,14 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                 {slide.note}
                             </p>
                         </div>
+
+                        {/* マスコット画像追加 */}
+                        <div className="absolute bottom-10 right-10 pointer-events-none opacity-20">
+                            <Image src="/mascot/mascot_happy.png" alt="" width={isPreview ? 120 : 200} height={isPreview ? 120 : 200} className="animate-float" />
+                        </div>
+                        <div className="absolute top-40 left-10 pointer-events-none opacity-10">
+                            <Image src="/mascot/mascot_cheer_blue.png" alt="" width={isPreview ? 80 : 150} height={isPreview ? 80 : 150} className="animate-float-slow" />
+                        </div>
                     </div>
                 </div>
             );
@@ -589,6 +616,13 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
             return (
                 <div className={`h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 flex flex-col relative overflow-y-auto transition-all duration-700 ${isFullScreen ? "p-4 md:p-8" : "p-6 md:p-8"}`}>
+                    {/* 背景装飾 */}
+                    <div className="absolute top-10 right-10 pointer-events-none opacity-10">
+                        <Image src="/mascot/mascot_thinking.png" alt="" width={180} height={180} className="animate-float-slow" />
+                    </div>
+                    <div className="absolute bottom-20 left-10 pointer-events-none opacity-10">
+                        <Image src="/mascot/mascot_happy.png" alt="" width={150} height={150} className="animate-bounce-gentle" />
+                    </div>
                     {/* 背景装飾 */}
                     <div className="absolute inset-0 opacity-5">
                         <div className="absolute top-20 right-20 w-40 h-40 bg-pink-400 rounded-full blur-3xl"></div>
@@ -1290,6 +1324,13 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-white">
+            {/* GFSロゴ */}
+            <div className={`absolute top-8 left-8 z-30 transition-all duration-1000 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
+                <div className="flex items-center gap-3">
+                    <Image src="/images/gfs_logo_navy.png" alt="GFS" width={80} height={80} className="object-contain" />
+                </div>
+            </div>
+
             {/* 背景のマスコット画像 */}
             <div className="absolute inset-0 pointer-events-none">
                 <Image

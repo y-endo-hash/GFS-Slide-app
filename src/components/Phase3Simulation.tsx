@@ -15,7 +15,7 @@ import Image from "next/image";
 
 interface Phase3SimulationProps {
     userData: UserInput;
-    simulationResult: SimulationResult;
+    simulationResult?: SimulationResult;
     onNext?: () => void;
     onBack?: () => void;
     onGoToAgenda?: () => void;
@@ -64,12 +64,19 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
         }
     }, [showSavingsResult]);
 
+    // Sync from prop (for preview mode)
+    useEffect(() => {
+        if (isPreview && typeof subStep === 'number' && subStep !== showStep) {
+            setShowStep(subStep);
+        }
+    }, [subStep, isPreview, showStep]);
+
     // 不足金額が表示されたときに強制スクロール
     useEffect(() => {
-        if (showGapCard && gapCardRef.current) {
+        if (showGapCard && gapCardRef.current && !isPreview) {
             gapCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-    }, [showGapCard]);
+    }, [showGapCard, isPreview]);
 
     // 全ての演出を一括スキップする
     const handleSkipAnimation = () => {
@@ -81,15 +88,17 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
     };
 
     const {
-        savingsEndValue,
-        trustEndValue,
-        stocksEndValue,
-        gfsEndValue,
-        requiredAnnualRate,
-        gap,
-        isGapNegative,
-        chartData
-    } = simulationResult;
+        savingsEndValue = 0,
+        trustEndValue = 0,
+        stocksEndValue = 0,
+        gfsEndValue = 0,
+        gfsAnnualRate = 0,
+        requiredAnnualRate = 0,
+        gap = 0,
+        isGapNegative = false,
+        chartData = [],
+        fullChartData = []
+    } = simulationResult || {};
 
     const investmentSteps = [
         {
@@ -114,6 +123,13 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-white">
+            {/* GFSロゴ */}
+            <div className={`absolute top-8 left-8 z-30 transition-all duration-1000 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
+                <div className="flex items-center gap-3">
+                    <Image src="/images/gfs_logo_navy.png" alt="GFS" width={80} height={80} className="object-contain" />
+                </div>
+            </div>
+
             {/* 背景のマスコット画像 */}
             <div className="absolute inset-0 pointer-events-none">
                 <Image
@@ -121,14 +137,14 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                     alt=""
                     width={220}
                     height={220}
-                    className="absolute -top-10 -right-10 opacity-10 animate-float-slow"
+                    className="absolute -top-10 -right-10 opacity-20 animate-float-slow"
                 />
                 <Image
                     src="/mascot/mascot_cheer_pink.png"
                     alt=""
                     width={180}
                     height={180}
-                    className="absolute bottom-20 -left-10 opacity-10 animate-float-delayed"
+                    className="absolute bottom-20 -left-10 opacity-20 animate-float-delayed"
                 />
             </div>
 
@@ -159,7 +175,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/10 backdrop-blur rounded-full mb-4 ring-1 ring-slate-900/5">
                             <span className="text-amber-600 font-bold">Section 02</span>
                             <span className="text-slate-400">/</span>
-                            <span className="text-slate-900">{userData.name}様の未来予想図</span>
+                            <span className="text-slate-900">{userData.name || "あなた"}様の未来予想図</span>
                             {!showSecondHalf && (
                                 <button
                                     onClick={handleSkipAnimation}
@@ -319,7 +335,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                             <TrendingUp className="w-10 h-10 text-blue-950" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-none drop-shadow-md whitespace-nowrap">{userData.name}様が投資で運用した場合のシミュレーション</h3>
+                                            <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-none drop-shadow-md whitespace-nowrap">{(userData.name || "あなた")}様が投資で運用した場合のシミュレーション</h3>
                                             <p className="text-blue-100 font-bold text-lg mt-2 opacity-90">利回り20％で運用した場合の効率的な資産形成</p>
                                         </div>
                                         <div className="ml-auto hidden md:block">
@@ -335,7 +351,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                             <div className="bg-white/90 backdrop-blur shadow-2xl border border-blue-100 rounded-2xl p-4 min-w-[160px] transform transition-transform cursor-default ring-4 ring-blue-500/20">
                                                 <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Time to Goal</p>
                                                 <p className="text-4xl font-black text-slate-900 leading-none">
-                                                    {simulationResult.achievedYear ?? userData.targetPeriod}<span className="text-sm ml-1">年</span>
+                                                    {(simulationResult?.achievedYear !== undefined ? simulationResult.achievedYear : userData.targetPeriod) || 0}<span className="text-sm ml-1">年</span>
                                                 </p>
                                                 <p className="text-[10px] font-bold text-slate-400 mt-1">目標達成までの期間</p>
                                             </div>
@@ -417,7 +433,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                     labelStyle={{ color: '#94A3B8', marginBottom: '0.75rem', fontWeight: 'bold' }}
                                                     formatter={(v: any, name?: string) => {
                                                         const labelMap: Record<string, string> = {
-                                                            gfs: `投資を行った場合 (${formatPercent(simulationResult.gfsAnnualRate)})`,
+                                                            gfs: `投資を行った場合 (${formatPercent(gfsAnnualRate)})`,
                                                             savings: '預金のみ (0.2%)'
                                                         };
                                                         return [`${(v / 10000).toLocaleString()}万円`, labelMap[name as string] || name];
@@ -451,7 +467,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                     <div className="mt-12 flex flex-wrap justify-center gap-8 relative z-10 border-t border-slate-700/50 pt-10">
                                         <div className="flex items-center gap-3 bg-slate-900/50 px-4 py-2 rounded-xl border border-amber-400/20">
                                             <div className="w-4 h-4 bg-amber-400 rounded shadow-[0_0_15px_rgba(251,189,35,0.6)]"></div>
-                                            <span className="text-amber-100 font-bold text-sm">投資を行った場合 ({formatPercent(simulationResult.gfsAnnualRate)})</span>
+                                            <span className="text-amber-100 font-bold text-sm">投資を行った場合 ({formatPercent(gfsAnnualRate)})</span>
                                         </div>
                                         <div className="flex items-center gap-3 bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20">
                                             <div className="w-4 h-1 border-t-2 border-red-500 border-dashed"></div>
@@ -502,64 +518,46 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                         </h4>
                                                     </div>
 
-                                                    <div className="max-w-4xl mx-auto w-full py-4 space-y-10">
-                                                        {/* 2023年データ */}
-                                                        <div className="relative flex flex-col md:flex-row items-center justify-start gap-4 md:gap-8 px-4">
+                                                    <div className="max-w-4xl mx-auto w-full py-12 space-y-10">
+                                                        {/* 2025年データ */}
+                                                        <div className="relative flex flex-col md:flex-row items-center justify-start gap-4 md:gap-8 px-4 py-8">
                                                             <div className="bg-[#0a2357] text-white px-6 py-2 rounded-sm font-black text-xl md:text-3xl shrink-0 tracking-tighter">
-                                                                2023年
+                                                                2025年
                                                             </div>
                                                             <div className="flex items-baseline flex-nowrap gap-1 md:gap-2">
-                                                                <span className="text-5xl md:text-7xl font-black text-[#0a2357] tracking-tighter">1,500</span>
+                                                                <span className="text-5xl md:text-7xl font-black text-[#0a2357] tracking-tighter">1,600</span>
                                                                 <span className="text-lg md:text-xl font-black text-[#0a2357] mr-1">銘柄</span>
                                                                 <div className="h-12 md:h-16 w-[2px] bg-slate-400 rotate-[25deg] mx-2 md:mx-6"></div>
                                                                 <span className="text-xs md:text-base font-bold text-[#0a2357] self-center mr-1">約</span>
                                                                 <span className="text-4xl md:text-6xl font-black text-[#0a2357] tracking-tighter">4,000</span>
                                                                 <span className="text-lg md:text-xl font-black text-[#0a2357]">銘柄</span>
                                                             </div>
-                                                            <div className="md:absolute md:-top-10 md:right-0 bg-[#5d8233] text-white px-6 py-2 rounded-xl text-xl md:text-3xl font-black shadow-lg animate-bounce-gentle">
-                                                                約3社に1社！
-                                                            </div>
-                                                        </div>
-
-                                                        {/* 2024年データ */}
-                                                        <div className="relative flex flex-col md:flex-row items-center justify-start gap-4 md:gap-8 px-4 pt-4">
-                                                            <div className="bg-[#0a2357] text-white px-6 py-2 rounded-sm font-black text-xl md:text-3xl shrink-0 tracking-tighter">
-                                                                2024年
-                                                            </div>
-                                                            <div className="flex items-baseline flex-nowrap gap-1 md:gap-2">
-                                                                <span className="text-5xl md:text-7xl font-black text-[#0a2357] tracking-tighter">911</span>
-                                                                <span className="text-lg md:text-xl font-black text-[#0a2357] mr-1">銘柄</span>
-                                                                <div className="h-12 md:h-16 w-[2px] bg-slate-400 rotate-[25deg] mx-2 md:mx-6"></div>
-                                                                <span className="text-xs md:text-base font-bold text-[#0a2357] self-center mr-1">約</span>
-                                                                <span className="text-4xl md:text-6xl font-black text-[#0a2357] tracking-tighter">4,000</span>
-                                                                <span className="text-lg md:text-xl font-black text-[#0a2357]">銘柄</span>
-                                                            </div>
-                                                            <div className="md:absolute md:-top-4 md:right-0 bg-[#e86a04] text-white px-6 py-2 rounded-xl text-xl md:text-3xl font-black shadow-lg animate-bounce-gentle">
-                                                                約4.5社に1社！
+                                                            <div className="md:absolute md:-top-6 md:right-0 bg-[#5d8233] text-white px-6 py-2 rounded-xl text-xl md:text-3xl font-black shadow-lg animate-bounce-gentle">
+                                                                約2.5社に1社！
                                                             </div>
                                                         </div>
 
                                                         {/* 注釈 */}
-                                                        <div className="text-right text-[#0a2357] text-sm md:text-lg font-bold pr-4 mt-8 opacity-80">
-                                                            ※上記は各年の1月1日と12月31日を比較した結果
+                                                        <div className="text-right text-[#0a2357] text-sm md:text-lg font-bold pr-4 mt-12 opacity-80">
+                                                            ※上記は2025年1月1日と12月31日を比較した結果
                                                         </div>
                                                     </div>
                                                 </div>
                                             ) : activeInsightSlide === 1 ? (
-                                                <div className="w-full h-full flex items-center justify-center p-4">
-                                                    <img src="/case-studies/slide2.png" alt="LINEヤフー 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl" />
+                                                <div className="w-full h-full flex flex-col items-center justify-center p-4 min-h-[400px]">
+                                                    <img src="/case-studies/slide2.png" alt="LINEヤフー 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl flex-1" />
                                                 </div>
                                             ) : activeInsightSlide === 2 ? (
-                                                <div className="w-full h-full flex items-center justify-center p-4">
-                                                    <img src="/case-studies/slide3.png" alt="サンリオ 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl" />
+                                                <div className="w-full h-full flex flex-col items-center justify-center p-4 min-h-[400px]">
+                                                    <img src="/case-studies/slide3.png" alt="サンリオ 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl flex-1" />
                                                 </div>
                                             ) : activeInsightSlide === 3 ? (
-                                                <div className="w-full h-full flex items-center justify-center p-4">
-                                                    <img src="/case-studies/slide4.png" alt="スシロー 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl" />
+                                                <div className="w-full h-full flex flex-col items-center justify-center p-4 min-h-[400px]">
+                                                    <img src="/case-studies/slide4.png" alt="スシロー 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl flex-1" />
                                                 </div>
                                             ) : activeInsightSlide === 4 ? (
-                                                <div className="w-full h-full flex items-center justify-center p-4">
-                                                    <img src="/case-studies/slide5.png" alt="良品計画 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl" />
+                                                <div className="w-full h-full flex flex-col items-center justify-center p-4 min-h-[400px]">
+                                                    <img src="/case-studies/slide5.png" alt="良品計画 事例" className="max-w-full max-h-full object-contain rounded-2xl shadow-xl flex-1" />
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col items-center justify-center h-full text-center py-20">
@@ -724,7 +722,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
 
                                     <div className="h-[400px] md:h-[550px] relative z-10">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={simulationResult.fullChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                            <AreaChart data={fullChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                                                 <defs>
                                                     <linearGradient id="colorRequired" x1="0" y1="0" x2="0" y2="1">
                                                         <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
@@ -751,7 +749,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                     labelStyle={{ color: '#94A3B8', marginBottom: '0.75rem', fontWeight: 'bold' }}
                                                     formatter={(v: any, name?: string) => {
                                                         const labelMap: Record<string, string> = {
-                                                            required: `目標達成に必要な年利 (${formatPercent(simulationResult.requiredAnnualRate)})`,
+                                                            required: `目標達成に必要な年利 (${formatPercent(requiredAnnualRate)})`,
                                                             gfs: '20%で投資を運用した場合',
                                                             savings: '預金 (0.2%)'
                                                         };
@@ -795,7 +793,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                     <div className="mt-12 flex flex-wrap justify-center gap-8 relative z-10 border-t border-slate-700/50 pt-10">
                                         <div className="flex items-center gap-3 bg-slate-900/50 px-4 py-2 rounded-xl border border-blue-400/20">
                                             <div className="w-4 h-4 bg-blue-500 rounded shadow-[0_0_15px_rgba(59,130,246,0.6)]"></div>
-                                            <span className="text-blue-100 font-bold text-sm">目標達成に必要な年利 ({formatPercent(simulationResult.requiredAnnualRate)})</span>
+                                            <span className="text-blue-100 font-bold text-sm">目標達成に必要な年利 ({formatPercent(requiredAnnualRate)})</span>
                                         </div>
                                         <div className="flex items-center gap-3 bg-slate-900/50 px-4 py-2 rounded-xl border border-amber-400/20">
                                             <div className="w-4 h-4 bg-amber-400 rounded shadow-[0_0_15px_rgba(251,189,35,0.6)]"></div>

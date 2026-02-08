@@ -73,21 +73,27 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
     // Determine what to show in the "Next Step" highlight
     const getNextStepInfo = () => {
+        if (currentPhase === "hearing") {
+            if (typeof subStep === 'number' && subStep < 3) {
+                return { id: "hearing", title: "ヒアリング (次へ)", desc: "目標の具体化...", subStep: subStep + 1 };
+            }
+            return phases[currentIdx + 1];
+        }
         if (currentPhase === "simulation") {
             if (typeof subStep === 'number' && subStep < 4) {
-                return { id: "simulation", title: "分析結果 (次へ)", desc: "預金・投資結果の深堀り", subStep: subStep + 1 };
+                return { id: "simulation", title: "分析結果 (詳細)", desc: "深掘り分析", subStep: subStep + 1 };
             }
             if (subStep === 4) {
-                return { id: "simulation", title: "分析結果 (考察)", desc: "GFSでの将来シミュレーション", subStep: "insight-0" };
+                return { id: "simulation", title: "分析結果 (考察)", desc: "成功事例の活用", subStep: "insight-0" };
             }
             if (typeof subStep === 'string' && subStep.startsWith('insight-')) {
                 const idx = parseInt(subStep.split('-')[1]);
-                if (idx < 4) return { id: "simulation", title: "分析結果 (考察次へ)", desc: "具体的な成功事例", subStep: `insight-${idx + 1}` };
+                if (idx < 4) return { id: "simulation", title: "成功事例 (次へ)", desc: "具体的なケーススタディ", subStep: `insight-${idx + 1}` };
                 return nextPhaseBase;
             }
         }
-        if (currentPhase === "solution" && typeof subStep === 'number' && subStep < 0) { // Future proof
-            return { id: "solution", title: "解決策提示 (次へ)", desc: "詳細な解説", subStep: subStep + 1 };
+        if (currentPhase === "solution" && typeof subStep === 'number' && subStep < 2) {
+            return { id: "solution", title: "解決策提示 (次へ)", desc: "具体的なプランニング", subStep: subStep + 1 };
         }
 
         return nextPhaseBase;
@@ -185,117 +191,108 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                         </div>
                     </div>
 
-                    {/* Content Area */}
-                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" ref={scrollContainerRef}>
+                    {/* Presenter View Area */}
+                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/30" ref={scrollContainerRef}>
                         {activeTab === "roadmap" ? (
-                            <div className="space-y-6 py-4 px-2">
-                                {/* Current Phase Highlight - Next Step Preview */}
-                                <div className="mb-10">
-                                    <p className="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] px-2">Next Step</p>
-                                    <div className="relative group p-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-[2.5rem] shadow-2xl shadow-blue-200 overflow-hidden transform transition-all duration-500 hover:scale-[1.02]">
-                                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-                                        <div className="bg-white rounded-[2.2rem] overflow-hidden">
-                                            {/* Preview Container */}
+                            <div className="space-y-8 py-4">
+                                {/* LIVE & NEXT Section */}
+                                <div className="grid grid-cols-1 gap-6">
+                                    {/* LIVE Slide */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-2 px-2">
+                                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                            <span className="text-[10px] font-black text-slate-900 tracking-[0.2em] uppercase">LIVE</span>
+                                        </div>
+                                        <div className="bg-white rounded-[2rem] border-2 border-red-500 shadow-2xl shadow-red-100 overflow-hidden">
+                                            <div className="aspect-video bg-slate-100 relative overflow-hidden flex items-center justify-center">
+                                                <div className="origin-top scale-[0.4] absolute top-4 w-[1000px]">
+                                                    {currentPhase === "agenda" && <Agenda onGoToPhase={() => { }} userData={userData} isPreview />}
+                                                    {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
+                                                    {currentPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
+                                                    {currentPhase === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={subStep} />}
+                                                    {currentPhase === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={subStep} />}
+                                                    {currentPhase === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={subStep} />}
+                                                    {currentPhase === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={subStep} />}
+                                                </div>
+                                                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                            </div>
+                                            <div className="p-4 bg-white">
+                                                <h4 className="text-sm font-black text-slate-900">
+                                                    {phases.find(p => p.id === currentPhase)?.title}
+                                                    <span className="ml-2 text-[10px] text-slate-400 font-bold">
+                                                        {typeof subStep === 'number' ? `Step ${subStep + 1}` : subStep}
+                                                    </span>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* NEXT Slide */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-2 px-2 opacity-50">
+                                            <div className="w-2 h-2 rounded-full bg-slate-400" />
+                                            <span className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">NEXT PREVIEW</span>
+                                        </div>
+                                        <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden grayscale-[0.2] opacity-80 transition-all hover:opacity-100 hover:grayscale-0">
                                             <div className="aspect-video bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
                                                 <div className="origin-top scale-[0.4] absolute top-4 w-[1000px]">
                                                     {nextStepHighlight?.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
                                                     {nextStepHighlight?.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                    {nextStepHighlight?.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview />}
+                                                    {nextStepHighlight?.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
                                                     {nextStepHighlight?.id === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
                                                     {nextStepHighlight?.id === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
                                                     {nextStepHighlight?.id === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
                                                     {(!nextStepHighlight || ((nextStepHighlight.id === "simulation" || nextStepHighlight.id === "solution" || nextStepHighlight.id === "closing") && !simulationResult)) && (
                                                         <div className="flex flex-col items-center justify-center h-full text-slate-400 bg-slate-50/50">
-                                                            <Clock className="w-16 h-16 mb-4 opacity-20" />
-                                                            <p className="text-xl font-bold">Waiting for simulation...</p>
+                                                            <Clock className="w-16 h-16 mb-4 opacity-10" />
+                                                            <p className="text-xl font-bold italic">End of session</p>
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
                                             </div>
-                                            {/* Info */}
-                                            <div className="p-6 flex items-center justify-between">
-                                                <div>
-                                                    <h3 className="text-xl font-black text-slate-900 mb-1">{nextStepHighlight?.title || "完了"}</h3>
-                                                    <p className="text-xs font-bold text-slate-500">{nextStepHighlight?.desc || "全てのセッションが終了しました"}</p>
-                                                </div>
-                                                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
-                                                    <ArrowRight className="w-6 h-6 text-blue-600 group-hover:translate-x-1 transition-transform" />
+                                            <div className="p-4 bg-slate-50/50">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h4 className="text-xs font-black text-slate-600 tracking-tight">{nextStepHighlight?.title || "完了"}</h4>
+                                                        <p className="text-[9px] font-bold text-slate-400 uppercase">{nextStepHighlight?.desc}</p>
+                                                    </div>
+                                                    <ArrowRight className="w-4 h-4 text-slate-300" />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Visual Roadmap Storyboard */}
-                                <div className="space-y-12 pb-12">
-                                    {[
-                                        { title: "INTRO", phases: ["agenda", "company", "threeSteps"] },
-                                        { title: "ANALYSIS", phases: ["hearing", "simulation"] },
-                                        { title: "PROPOSAL", phases: ["solution", "closing"] }
-                                    ].map((section) => (
-                                        <div key={section.title} className="space-y-4">
-                                            <div className="flex items-center gap-4 px-2">
-                                                <h4 className="text-[12px] font-black text-slate-900 tracking-[0.3em]">{section.title}</h4>
-                                                <div className="h-[1px] flex-1 bg-slate-100" />
-                                            </div>
-
-                                            <div className="grid grid-cols-1 gap-6">
-                                                {phases.filter(p => section.phases.includes(p.id)).map((p, i) => {
-                                                    const isPast = phases.findIndex(ph => ph.id === p.id) < currentIdx;
-                                                    const isCurrent = p.id === currentPhase;
-
-                                                    return (
-                                                        <div
-                                                            key={p.id}
-                                                            data-phase={p.id}
-                                                            className={cn(
-                                                                "relative bg-white rounded-3xl border transition-all duration-500 overflow-hidden",
-                                                                isCurrent ? "border-blue-500 shadow-xl shadow-blue-50 ring-2 ring-blue-50 ring-offset-2 scale-[1.02]" : "border-slate-100 opacity-60 grayscale-[0.3] hover:opacity-80 hover:grayscale-0"
-                                                            )}
-                                                        >
-                                                            <div className="flex">
-                                                                {/* Thumbnail Preview */}
-                                                                <div className="w-32 aspect-video bg-slate-50 relative overflow-hidden border-r border-slate-100 shrink-0">
-                                                                    <div className="origin-top-left scale-[0.14] absolute top-2 left-2 w-[1000px]">
-                                                                        {p.id === "agenda" && <Agenda onGoToPhase={() => { }} userData={userData} isPreview />}
-                                                                        {p.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
-                                                                        {p.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                                        {p.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview />}
-                                                                        {p.id === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
-                                                                        {p.id === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
-                                                                        {p.id === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
-                                                                        {((p.id === "simulation" || p.id === "solution" || p.id === "closing") && !simulationResult) && (
-                                                                            <div className="flex items-center justify-center h-full bg-slate-100/50">
-                                                                                <Clock className="w-6 h-6 text-slate-300" />
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="absolute inset-0 bg-black/5" />
-                                                                    {isPast && (
-                                                                        <div className="absolute inset-0 bg-blue-600/10 flex items-center justify-center backdrop-blur-[1px]">
-                                                                            <CheckCircle2 className="w-8 h-8 text-blue-600 drop-shadow-lg" />
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-
-                                                                {/* Text Info */}
-                                                                <div className="p-4 flex-1 flex flex-col justify-center">
-                                                                    <div className="flex items-center justify-between mb-1">
-                                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phase {phases.findIndex(ph => ph.id === p.id) + 1}</span>
-                                                                        {isCurrent && (
-                                                                            <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-                                                                        )}
-                                                                    </div>
-                                                                    <h5 className="font-black text-slate-900 leading-tight">{p.title}</h5>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    ))}
+                                {/* Simplified Timeline */}
+                                <div className="pt-8 px-2">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <h4 className="text-[10px] font-black text-slate-900 tracking-[0.3em]">TIMELINE</h4>
+                                        <div className="h-[1px] flex-1 bg-slate-100" />
+                                    </div>
+                                    <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
+                                        {phases.map((p, idx) => {
+                                            const isPast = idx < currentIdx;
+                                            const isCurrent = p.id === currentPhase;
+                                            return (
+                                                <div key={p.id} className="relative flex items-center gap-4">
+                                                    <div className={cn(
+                                                        "absolute -left-[1.35rem] w-3 h-3 rounded-full border-2 border-white z-10 transition-colors duration-500",
+                                                        isCurrent ? "bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)] animate-pulse" : isPast ? "bg-blue-300" : "bg-slate-200"
+                                                    )} />
+                                                    <div className={cn(
+                                                        "flex-1 p-3 rounded-2xl border transition-all duration-300",
+                                                        isCurrent ? "bg-blue-50/50 border-blue-100" : "bg-transparent border-transparent"
+                                                    )}>
+                                                        <span className={cn(
+                                                            "text-[11px] font-black",
+                                                            isCurrent ? "text-blue-900" : isPast ? "text-slate-500" : "text-slate-300"
+                                                        )}>{p.title}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         ) : activeTab === "glossary" ? (

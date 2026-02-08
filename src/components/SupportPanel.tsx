@@ -201,13 +201,13 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                                     {nextStepHighlight?.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
                                                     {nextStepHighlight?.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
                                                     {nextStepHighlight?.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview />}
-                                                    {nextStepHighlight?.id === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult as any} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {nextStepHighlight?.id === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult as any} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {nextStepHighlight?.id === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult as any} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
-                                                    {!nextStepHighlight && (
-                                                        <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                                                            <CheckCircle2 className="w-16 h-16 mb-4" />
-                                                            <p className="text-4xl font-black">All Phases Completed</p>
+                                                    {nextStepHighlight?.id === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
+                                                    {nextStepHighlight?.id === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
+                                                    {nextStepHighlight?.id === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
+                                                    {(!nextStepHighlight || ((nextStepHighlight.id === "simulation" || nextStepHighlight.id === "solution" || nextStepHighlight.id === "closing") && !simulationResult)) && (
+                                                        <div className="flex flex-col items-center justify-center h-full text-slate-400 bg-slate-50/50">
+                                                            <Clock className="w-16 h-16 mb-4 opacity-20" />
+                                                            <p className="text-xl font-bold">Waiting for simulation...</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -262,9 +262,14 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                                                         {p.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
                                                                         {p.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
                                                                         {p.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview />}
-                                                                        {p.id === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult as any} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
-                                                                        {p.id === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult as any} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
-                                                                        {p.id === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult as any} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                        {p.id === "simulation" && simulationResult && <Phase3Simulation userData={userData} simulationResult={simulationResult} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                        {p.id === "solution" && simulationResult && <Phase4Solution userData={userData} simulationResult={simulationResult} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                        {p.id === "closing" && simulationResult && <Phase5Closing userData={userData} simulationResult={simulationResult} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                        {((p.id === "simulation" || p.id === "solution" || p.id === "closing") && !simulationResult) && (
+                                                                            <div className="flex items-center justify-center h-full bg-slate-100/50">
+                                                                                <Clock className="w-6 h-6 text-slate-300" />
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                     <div className="absolute inset-0 bg-black/5" />
                                                                     {isPast && (

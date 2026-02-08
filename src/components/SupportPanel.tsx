@@ -46,6 +46,10 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                 setSubStep(0);
             }
         };
+
+        // マウント時に最新データの送信を要求
+        channel.postMessage({ type: "REQUEST_SYNC" });
+
         return () => channel.close();
     }, []);
 

@@ -25,7 +25,19 @@ export default function Home() {
   // 他のタブ（サポートパネル等）にフェーズ情報を同期
   useEffect(() => {
     const channel = new BroadcastChannel("gfs-sync");
-    channel.postMessage({ type: "SYNC_STATE", phase, subStep, simulationResult, userData });
+
+    const broadcastState = () => {
+      channel.postMessage({ type: "SYNC_STATE", phase, subStep, simulationResult, userData });
+    };
+
+    channel.onmessage = (event) => {
+      if (event.data?.type === "REQUEST_SYNC") {
+        broadcastState();
+      }
+    };
+
+    broadcastState();
+
     return () => channel.close();
   }, [phase, subStep, simulationResult, userData]);
   const [isLoading, setIsLoading] = useState(false);

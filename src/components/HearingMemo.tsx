@@ -67,32 +67,55 @@ export default function HearingMemo({
                 height: 800,
             });
 
-            // スタイルのコピー
+            // スタイルのコピー（より堅牢な方法）
             const allStyleSheets = Array.from(document.styleSheets);
             allStyleSheets.forEach((styleSheet) => {
                 try {
-                    const cssRules = Array.from(styleSheet.cssRules)
-                        .map((rule) => rule.cssText)
-                        .join("");
-                    const style = document.createElement("style");
-                    style.textContent = cssRules;
-                    pipWindow.document.head.appendChild(style);
-                } catch (e) {
-                    const link = document.createElement("link");
                     if (styleSheet.href) {
+                        const link = document.createElement("link");
                         link.rel = "stylesheet";
                         link.href = styleSheet.href;
                         pipWindow.document.head.appendChild(link);
+                    } else {
+                        const cssRules = Array.from(styleSheet.cssRules)
+                            .map((rule) => rule.cssText)
+                            .join("");
+                        const style = document.createElement("style");
+                        style.textContent = cssRules;
+                        pipWindow.document.head.appendChild(style);
                     }
+                } catch (e) {
+                    console.warn("Could not copy stylesheet", e);
                 }
             });
 
-            // 外部コンポーネントのインポートを回避するため、動的インポートまたは
-            // SupportPanelを直接レンダリング。ここではBroadcastChannel経由で
-            // データが同期される既存のコンポーネントを使用。
+            // HTML/Bodyのスタイルを設定してコンテンツを表示可能にする
+            const styleElement = document.createElement("style");
+            styleElement.textContent = `
+                html, body, #pip-root {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
+                    background-color: #f8fafc;
+                }
+            `;
+            pipWindow.document.head.appendChild(styleElement);
+
             const container = pipWindow.document.createElement("div");
             container.id = "pip-root";
             pipWindow.document.body.appendChild(container);
+
+            // ウィンドウを左側に寄せる試み（ブラウザにより制限がある場合があります）
+            try {
+                // PiPウィンドウの初期位置指定はできないため、オープン後に移動を試みる
+                // 注意: 一部のブラウザではmoveToが制限されているか、ユーザー操作に依存します
+                setTimeout(() => {
+                    pipWindow.moveTo(0, 0);
+                }, 100);
+            } catch (e) {
+                console.warn("Could not move PiP window", e);
+            }
 
             // 動的インポートを使用してSupportPanelをインクルード
             const { default: SupportPanel } = await import("@/components/SupportPanel");

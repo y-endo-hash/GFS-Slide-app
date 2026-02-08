@@ -15,20 +15,23 @@ import Image from "next/image";
 interface Phase5ClosingProps {
     userData: UserInput;
     simulationResult: SimulationResult;
-    onBack: () => void;
-    onGoToAgenda: () => void;
+    onBack?: () => void;
+    onGoToAgenda?: () => void;
+    onSubStepChange?: (subStep: number | string) => void;
+    subStep?: number | string;
+    isPreview?: boolean;
 }
 
-export default function Phase5Closing({ userData, simulationResult, onBack, onGoToAgenda }: Phase5ClosingProps) {
+export default function Phase5Closing({ userData, simulationResult, onBack, onGoToAgenda, onSubStepChange, subStep, isPreview = false }: Phase5ClosingProps) {
     const [interest, setInterest] = useState<"yes" | "no" | null>(null);
     const [showPlan, setShowPlan] = useState(false);
-    const [showContent, setShowContent] = useState(false);
+    const [showContent, setShowContent] = useState(isPreview);
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [activeStep, setActiveStep] = useState(0); // 0: GFS Intro, 1: Proposal
 
     useEffect(() => {
-        setShowContent(true);
-    }, []);
+        if (!isPreview) setShowContent(true);
+    }, [isPreview]);
 
     const handleInterest = (value: "yes" | "no") => {
         setInterest(value);

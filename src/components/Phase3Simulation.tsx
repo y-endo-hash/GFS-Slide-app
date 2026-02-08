@@ -16,34 +16,39 @@ import Image from "next/image";
 interface Phase3SimulationProps {
     userData: UserInput;
     simulationResult: SimulationResult;
-    onNext: () => void;
-    onBack: () => void;
-    onGoToAgenda: () => void;
+    onNext?: () => void;
+    onBack?: () => void;
+    onGoToAgenda?: () => void;
+    onSubStepChange?: (subStep: number | string) => void;
+    subStep?: number | string;
+    isPreview?: boolean;
 }
 
-
-
-export default function Phase3Simulation({ userData, simulationResult, onNext, onBack, onGoToAgenda }: Phase3SimulationProps) {
-    const [showStep, setShowStep] = useState(0);
-    const [showContent, setShowContent] = useState(false);
-    const [showSecondHalf, setShowSecondHalf] = useState(false);
-    const [showSavingsResult, setShowSavingsResult] = useState(false);
-    const [showGapCard, setShowGapCard] = useState(false);
+export default function Phase3Simulation({ userData, simulationResult, onNext, onBack, onGoToAgenda, onSubStepChange, subStep, isPreview = false }: Phase3SimulationProps) {
+    const [showStep, setShowStep] = useState(isPreview ? (typeof subStep === 'number' ? subStep : 4) : 0);
+    const [showContent, setShowContent] = useState(isPreview);
+    const [showSecondHalf, setShowSecondHalf] = useState(isPreview);
+    const [showSavingsResult, setShowSavingsResult] = useState(isPreview);
+    const [showGapCard, setShowGapCard] = useState(isPreview);
     const [showArrowButton, setShowArrowButton] = useState(false);
     const [showRequiredRate, setShowRequiredRate] = useState(false);
     const [showRequiredGraph, setShowRequiredGraph] = useState(false);
-    const [activeInsightSlide, setActiveInsightSlide] = useState<number>(0);
+    const [activeInsightSlide, setActiveInsightSlide] = useState<number>(isPreview && typeof subStep === 'string' && subStep.startsWith('insight-') ? parseInt(subStep.split('-')[1]) : 0);
     const gapCardRef = useRef<HTMLDivElement>(null);
 
 
     useEffect(() => {
+        if (isPreview) return;
         setShowContent(true);
         // 段階的にコンテンツを表示
         const timers = [1, 2, 3, 4].map((step, index) =>
-            setTimeout(() => setShowStep(step), (index + 1) * 800)
+            setTimeout(() => {
+                setShowStep(step);
+                onSubStepChange?.(step);
+            }, (index + 1) * 800)
         );
         return () => timers.forEach(clearTimeout);
-    }, []);
+    }, [isPreview, onSubStepChange]);
 
     // 預金結果が表示されたら、段階的にストーリーを展開する演出
     useEffect(() => {
@@ -72,6 +77,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
         setShowSavingsResult(true);
         setShowGapCard(true);
         setShowSecondHalf(true);
+        onSubStepChange?.(4);
     };
 
     const {
@@ -577,7 +583,10 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                     {[0, 1, 2, 3, 4].map(i => (
                                                         <button
                                                             key={i}
-                                                            onClick={() => setActiveInsightSlide(i)}
+                                                            onClick={() => {
+                                                                setActiveInsightSlide(i);
+                                                                onSubStepChange?.(`insight-${i}`);
+                                                            }}
                                                             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${activeInsightSlide === i ? "bg-blue-900 w-8" : "bg-slate-200 hover:bg-slate-300"}`}
                                                         />
                                                     ))}
@@ -587,7 +596,11 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                         variant="outline"
                                                         size="sm"
                                                         disabled={activeInsightSlide === 0}
-                                                        onClick={() => setActiveInsightSlide(prev => Math.max(0, prev - 1))}
+                                                        onClick={() => {
+                                                            const newSlide = Math.max(0, activeInsightSlide - 1);
+                                                            setActiveInsightSlide(newSlide);
+                                                            onSubStepChange?.(`insight-${newSlide}`);
+                                                        }}
                                                         className="rounded-full border-2 border-slate-200 text-slate-400 hover:text-blue-900 hover:border-blue-900 transition-all p-0 w-12 h-12 shadow-sm"
                                                     >
                                                         <ChevronLeft className="w-6 h-6" />
@@ -596,7 +609,11 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                         variant="outline"
                                                         size="sm"
                                                         disabled={activeInsightSlide === 4}
-                                                        onClick={() => setActiveInsightSlide(prev => Math.min(4, prev + 1))}
+                                                        onClick={() => {
+                                                            const newSlide = Math.min(4, activeInsightSlide + 1);
+                                                            setActiveInsightSlide(newSlide);
+                                                            onSubStepChange?.(`insight-${newSlide}`);
+                                                        }}
                                                         className="rounded-full border-2 border-blue-900 text-blue-900 bg-white hover:bg-blue-50 shadow-lg shadow-blue-900/10 transition-all font-black p-0 w-12 h-12"
                                                     >
                                                         <ArrowRight className="w-6 h-6" />

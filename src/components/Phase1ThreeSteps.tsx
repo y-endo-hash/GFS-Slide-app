@@ -6,17 +6,18 @@ import { ArrowRight, ChevronLeft, FileText, Target, TrendingUp, Zap, Flag } from
 import Image from "next/image";
 
 interface Phase1ThreeStepsProps {
-    onNext: () => void;
-    onBack: () => void;
-    onGoToAgenda: () => void;
+    onNext?: () => void;
+    onBack?: () => void;
+    onGoToAgenda?: () => void;
+    isPreview?: boolean;
 }
 
-export default function Phase1ThreeSteps({ onNext, onBack, onGoToAgenda }: Phase1ThreeStepsProps) {
-    const [showContent, setShowContent] = useState(false);
+export default function Phase1ThreeSteps({ onNext, onBack, onGoToAgenda, isPreview = false }: Phase1ThreeStepsProps) {
+    const [showContent, setShowContent] = useState(isPreview);
 
     useEffect(() => {
-        setShowContent(true);
-    }, []);
+        if (!isPreview) setShowContent(true);
+    }, [isPreview]);
 
     const steps = [
         {
@@ -54,7 +55,7 @@ export default function Phase1ThreeSteps({ onNext, onBack, onGoToAgenda }: Phase
 
                 {/* ヘッダー */}
                 <div className={`w-full flex justify-between items-center mb-12 transition-all duration-700 ${showContent ? "opacity-100" : "opacity-0"}`}>
-                    <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-600 hover:text-slate-900">
+                    <Button variant="ghost" size="sm" onClick={() => onBack?.()} className="text-slate-600 hover:text-slate-900">
                         <ChevronLeft className="w-4 h-4 mr-1" /> 戻る
                     </Button>
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/5 backdrop-blur rounded-full ring-1 ring-slate-900/10">
@@ -62,7 +63,7 @@ export default function Phase1ThreeSteps({ onNext, onBack, onGoToAgenda }: Phase
                         <span className="text-slate-400">/</span>
                         <span className="text-slate-900">資産形成の3ステップ</span>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={onGoToAgenda} className="text-slate-600 hover:text-slate-900">
+                    <Button variant="ghost" size="sm" onClick={() => onGoToAgenda?.()} className="text-slate-600 hover:text-slate-900">
                         <FileText className="w-4 h-4 mr-1" /> 目次
                     </Button>
                 </div>
@@ -161,7 +162,7 @@ export default function Phase1ThreeSteps({ onNext, onBack, onGoToAgenda }: Phase
                 {/* ネクストアクション */}
                 <div className={`mt-20 transition-all duration-700 delay-1000 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
                     <Button
-                        onClick={onNext}
+                        onClick={() => onNext?.()}
                         size="lg"
                         className="bg-blue-900 hover:bg-slate-800 text-white font-black h-20 px-12 rounded-full text-xl md:text-2xl shadow-2xl group transform transition-all hover:scale-105"
                     >

@@ -3,8 +3,17 @@
 import { useEffect, useState, useRef } from "react";
 import { Book, HelpCircle, ChevronRight, MessageSquare, Info, Sparkles, X, Activity, ArrowRight, CheckCircle2, Clock } from "lucide-react";
 import { GLOSSARY, SUPPORT_QA } from "@/constants/supportData";
-import { UserInput, Phase } from "@/types";
+import { UserInput, Phase, SimulationResult } from "@/types";
 import { cn } from "@/lib/utils";
+
+// Phase Components for Roadmap Previews
+import Agenda from "@/components/Agenda";
+import Phase1Hearing from "@/components/Phase1Hearing";
+import Phase1ThreeSteps from "@/components/Phase1ThreeSteps";
+import Phase2CompanyIntro from "@/components/Phase2CompanyIntro";
+import Phase3Simulation from "@/components/Phase3Simulation";
+import Phase4Solution from "@/components/Phase4Solution";
+import Phase5Closing from "@/components/Phase5Closing";
 
 interface SupportPanelProps {
     userData: UserInput;
@@ -13,23 +22,37 @@ interface SupportPanelProps {
     isStandalone?: boolean;
 }
 
-export default function SupportPanel({ userData, isOpen, onToggle, isStandalone = false }: SupportPanelProps) {
+export default function SupportPanel({ userData: initialUserData, isOpen, onToggle, isStandalone = false }: SupportPanelProps) {
     const [activeTab, setActiveTab] = useState<"glossary" | "qa" | "roadmap">("roadmap");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
     const [currentPhase, setCurrentPhase] = useState<Phase>("agenda");
+    const [subStep, setSubStep] = useState<number | string>(0);
+    const [userData, setUserData] = useState<UserInput>(initialUserData);
+    const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // フェーズ情報の受取
+    // データの同期（ページ間、もしくは同一ページ内の他コンポーネントと）
     useEffect(() => {
         const channel = new BroadcastChannel("gfs-sync");
         channel.onmessage = (event) => {
-            if (event.data?.type === "PHASE_CHANGE") {
+            if (event.data?.type === "SYNC_STATE") {
+                if (event.data.phase) setCurrentPhase(event.data.phase);
+                if (event.data.subStep !== undefined) setSubStep(event.data.subStep);
+                if (event.data.simulationResult) setSimulationResult(event.data.simulationResult);
+                if (event.data.userData) setUserData(event.data.userData);
+            } else if (event.data?.type === "PHASE_CHANGE") {
                 setCurrentPhase(event.data.phase);
+                setSubStep(0);
             }
         };
         return () => channel.close();
     }, []);
+
+    // 初期化時に親からのpropsでも更新
+    useEffect(() => {
+        setUserData(initialUserData);
+    }, [initialUserData]);
 
     const phases: { id: Phase; title: string; desc: string }[] = [
         { id: "agenda", title: "アジェンダ", desc: "本日の流れ" },
@@ -42,7 +65,31 @@ export default function SupportPanel({ userData, isOpen, onToggle, isStandalone 
     ];
 
     const currentIdx = phases.findIndex(p => p.id === currentPhase);
-    const nextPhase = phases[currentIdx + 1];
+    const nextPhaseBase = phases[currentIdx + 1];
+
+    // Determine what to show in the "Next Step" highlight
+    const getNextStepInfo = () => {
+        if (currentPhase === "simulation") {
+            if (typeof subStep === 'number' && subStep < 4) {
+                return { id: "simulation", title: "分析結果 (次へ)", desc: "預金・投資結果の深堀り", subStep: subStep + 1 };
+            }
+            if (subStep === 4) {
+                return { id: "simulation", title: "分析結果 (考察)", desc: "GFSでの将来シミュレーション", subStep: "insight-0" };
+            }
+            if (typeof subStep === 'string' && subStep.startsWith('insight-')) {
+                const idx = parseInt(subStep.split('-')[1]);
+                if (idx < 4) return { id: "simulation", title: "分析結果 (考察次へ)", desc: "具体的な成功事例", subStep: `insight-${idx + 1}` };
+                return nextPhaseBase;
+            }
+        }
+        if (currentPhase === "solution" && typeof subStep === 'number' && subStep < 0) { // Future proof
+            return { id: "solution", title: "解決策提示 (次へ)", desc: "詳細な解説", subStep: subStep + 1 };
+        }
+
+        return nextPhaseBase;
+    };
+
+    const nextStepHighlight = getNextStepInfo();
 
     // オートスクロール制御
     useEffect(() => {
@@ -127,8 +174,8 @@ export default function SupportPanel({ userData, isOpen, onToggle, isStandalone 
                             </button>
                             <div
                                 className={`absolute inset-y-1 transition-all duration-300 bg-white shadow-md rounded-xl ${activeTab === "glossary" ? "left-1 w-[calc(33.3%-4px)]" :
-                                        activeTab === "qa" ? "left-[calc(33.3%+2px)] w-[calc(33.3%-4px)]" :
-                                            "left-[calc(66.6%+2px)] w-[calc(33.3%-4px)]"
+                                    activeTab === "qa" ? "left-[calc(33.3%+2px)] w-[calc(33.3%-4px)]" :
+                                        "left-[calc(66.6%+2px)] w-[calc(33.3%-4px)]"
                                     }`}
                             />
                         </div>
@@ -138,74 +185,108 @@ export default function SupportPanel({ userData, isOpen, onToggle, isStandalone 
                     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" ref={scrollContainerRef}>
                         {activeTab === "roadmap" ? (
                             <div className="space-y-6 py-4 px-2">
-                                {/* Current Phase Highlight */}
-                                <div className="mb-8 p-6 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-2xl shadow-blue-200 relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                                        <Activity className="w-24 h-24 text-white" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <p className="text-[10px] font-black text-white/60 mb-1 uppercase tracking-[0.2em]">Now Presenting</p>
-                                        <h3 className="text-3xl font-black text-white mb-4 tracking-tighter">
-                                            {phases[currentIdx]?.title}
-                                        </h3>
-                                        <div className="flex items-center gap-2 py-2 px-4 bg-white/10 rounded-full backdrop-blur-md border border-white/20 inline-flex">
-                                            <Clock className="w-3 h-3 text-blue-200" />
-                                            <span className="text-[10px] font-bold text-blue-50">Next: {nextPhase ? nextPhase.title : "終了"}</span>
+                                {/* Current Phase Highlight - Next Step Preview */}
+                                <div className="mb-10">
+                                    <p className="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] px-2">Next Step</p>
+                                    <div className="relative group p-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-[2.5rem] shadow-2xl shadow-blue-200 overflow-hidden transform transition-all duration-500 hover:scale-[1.02]">
+                                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+                                        <div className="bg-white rounded-[2.2rem] overflow-hidden">
+                                            {/* Preview Container */}
+                                            <div className="aspect-video bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
+                                                <div className="origin-top scale-[0.4] absolute top-4 w-[1000px]">
+                                                    {nextStepHighlight?.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
+                                                    {nextStepHighlight?.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
+                                                    {nextStepHighlight?.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview />}
+                                                    {nextStepHighlight?.id === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult as any} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
+                                                    {nextStepHighlight?.id === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult as any} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
+                                                    {nextStepHighlight?.id === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult as any} isPreview subStep={(nextStepHighlight as any).subStep ?? 0} />}
+                                                    {!nextStepHighlight && (
+                                                        <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                                                            <CheckCircle2 className="w-16 h-16 mb-4" />
+                                                            <p className="text-4xl font-black">All Phases Completed</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                            </div>
+                                            {/* Info */}
+                                            <div className="p-6 flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="text-xl font-black text-slate-900 mb-1">{nextStepHighlight?.title || "完了"}</h3>
+                                                    <p className="text-xs font-bold text-slate-500">{nextStepHighlight?.desc || "全てのセッションが終了しました"}</p>
+                                                </div>
+                                                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                                                    <ArrowRight className="w-6 h-6 text-blue-600 group-hover:translate-x-1 transition-transform" />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Dynamic Roadmap List */}
-                                <div className="relative pl-8 space-y-12 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 before:content-['']">
-                                    {phases.map((p, i) => {
-                                        const isPast = i < currentIdx;
-                                        const isCurrent = i === currentIdx;
-                                        const isFuture = i > currentIdx;
-
-                                        return (
-                                            <div
-                                                key={p.id}
-                                                data-phase={p.id}
-                                                className={cn(
-                                                    "relative transition-all duration-700",
-                                                    isCurrent ? "scale-105 opacity-100" : "scale-100 opacity-40 grayscale-[0.5]"
-                                                )}
-                                            >
-                                                {/* Timeline Node */}
-                                                <div className={cn(
-                                                    "absolute -left-8 top-1 w-6 h-6 rounded-full border-4 transition-all duration-500 z-10 flex items-center justify-center",
-                                                    isPast ? "bg-blue-600 border-blue-100 scale-90" :
-                                                        isCurrent ? "bg-white border-blue-600 scale-110 shadow-lg shadow-blue-200 animate-pulse" :
-                                                            "bg-white border-slate-200"
-                                                )}>
-                                                    {isPast && <CheckCircle2 className="w-3 h-3 text-white" />}
-                                                </div>
-
-                                                <div className={cn(
-                                                    "p-5 rounded-3xl border transition-all duration-500",
-                                                    isCurrent ? "bg-white border-blue-100 shadow-xl shadow-blue-50/50" : "bg-transparent border-transparent"
-                                                )}>
-                                                    <div className="flex justify-between items-start mb-1">
-                                                        <h4 className={cn(
-                                                            "text-lg font-black tracking-tight",
-                                                            isCurrent ? "text-slate-900" : "text-slate-400"
-                                                        )}>
-                                                            {p.title}
-                                                        </h4>
-                                                        {isCurrent && (
-                                                            <span className="px-2 py-0.5 bg-blue-600 text-[8px] font-black text-white rounded-full uppercase tracking-widest animate-bounce">Live</span>
-                                                        )}
-                                                    </div>
-                                                    <p className={cn(
-                                                        "text-xs font-bold leading-relaxed",
-                                                        isCurrent ? "text-slate-500" : "text-slate-300"
-                                                    )}>
-                                                        {p.desc}
-                                                    </p>
-                                                </div>
+                                {/* Visual Roadmap Storyboard */}
+                                <div className="space-y-12 pb-12">
+                                    {[
+                                        { title: "INTRO", phases: ["agenda", "company", "threeSteps"] },
+                                        { title: "ANALYSIS", phases: ["hearing", "simulation"] },
+                                        { title: "PROPOSAL", phases: ["solution", "closing"] }
+                                    ].map((section) => (
+                                        <div key={section.title} className="space-y-4">
+                                            <div className="flex items-center gap-4 px-2">
+                                                <h4 className="text-[12px] font-black text-slate-900 tracking-[0.3em]">{section.title}</h4>
+                                                <div className="h-[1px] flex-1 bg-slate-100" />
                                             </div>
-                                        );
-                                    })}
+
+                                            <div className="grid grid-cols-1 gap-6">
+                                                {phases.filter(p => section.phases.includes(p.id)).map((p, i) => {
+                                                    const isPast = phases.findIndex(ph => ph.id === p.id) < currentIdx;
+                                                    const isCurrent = p.id === currentPhase;
+
+                                                    return (
+                                                        <div
+                                                            key={p.id}
+                                                            data-phase={p.id}
+                                                            className={cn(
+                                                                "relative bg-white rounded-3xl border transition-all duration-500 overflow-hidden",
+                                                                isCurrent ? "border-blue-500 shadow-xl shadow-blue-50 ring-2 ring-blue-50 ring-offset-2 scale-[1.02]" : "border-slate-100 opacity-60 grayscale-[0.3] hover:opacity-80 hover:grayscale-0"
+                                                            )}
+                                                        >
+                                                            <div className="flex">
+                                                                {/* Thumbnail Preview */}
+                                                                <div className="w-32 aspect-video bg-slate-50 relative overflow-hidden border-r border-slate-100 shrink-0">
+                                                                    <div className="origin-top-left scale-[0.14] absolute top-2 left-2 w-[1000px]">
+                                                                        {p.id === "agenda" && <Agenda onGoToPhase={() => { }} userData={userData} isPreview />}
+                                                                        {p.id === "company" && <Phase2CompanyIntro userData={userData} isPreview />}
+                                                                        {p.id === "threeSteps" && <Phase1ThreeSteps isPreview />}
+                                                                        {p.id === "hearing" && <Phase1Hearing onSubmit={() => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview />}
+                                                                        {p.id === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult as any} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                        {p.id === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult as any} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                        {p.id === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult as any} isPreview subStep={p.id === currentPhase ? subStep : 0} />}
+                                                                    </div>
+                                                                    <div className="absolute inset-0 bg-black/5" />
+                                                                    {isPast && (
+                                                                        <div className="absolute inset-0 bg-blue-600/10 flex items-center justify-center backdrop-blur-[1px]">
+                                                                            <CheckCircle2 className="w-8 h-8 text-blue-600 drop-shadow-lg" />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                {/* Text Info */}
+                                                                <div className="p-4 flex-1 flex flex-col justify-center">
+                                                                    <div className="flex items-center justify-between mb-1">
+                                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phase {phases.findIndex(ph => ph.id === p.id) + 1}</span>
+                                                                        {isCurrent && (
+                                                                            <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+                                                                        )}
+                                                                    </div>
+                                                                    <h5 className="font-black text-slate-900 leading-tight">{p.title}</h5>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         ) : activeTab === "glossary" ? (

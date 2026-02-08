@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles, ExternalLink, HelpCircle, ChevronRight } from "lucide-react";
+import { createRoot } from "react-dom/client";
+import { User, Target, Wallet, FileText, PenLine, Save, Check, Sparkles, ExternalLink, HelpCircle, ChevronRight, Maximize2 } from "lucide-react";
 import { UserInput, SimulationResult } from "@/types";
 import { formatPercent } from "@/lib/simulation";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,71 @@ export default function HearingMemo({
         );
     };
 
+    const openPiPSupport = async () => {
+        if (!('documentPictureInPicture' in window)) {
+            alert("このブラウザはAlways-on-Topモードに対応していません。通常の別ウィンドウ表示をご利用ください。");
+            openSupportWindow();
+            return;
+        }
+
+        try {
+            const pipWindow = await (window as any).documentPictureInPicture.requestWindow({
+                width: 500,
+                height: 800,
+            });
+
+            // スタイルのコピー
+            const allStyleSheets = Array.from(document.styleSheets);
+            allStyleSheets.forEach((styleSheet) => {
+                try {
+                    const cssRules = Array.from(styleSheet.cssRules)
+                        .map((rule) => rule.cssText)
+                        .join("");
+                    const style = document.createElement("style");
+                    style.textContent = cssRules;
+                    pipWindow.document.head.appendChild(style);
+                } catch (e) {
+                    const link = document.createElement("link");
+                    if (styleSheet.href) {
+                        link.rel = "stylesheet";
+                        link.href = styleSheet.href;
+                        pipWindow.document.head.appendChild(link);
+                    }
+                }
+            });
+
+            // 外部コンポーネントのインポートを回避するため、動的インポートまたは
+            // SupportPanelを直接レンダリング。ここではBroadcastChannel経由で
+            // データが同期される既存のコンポーネントを使用。
+            const container = pipWindow.document.createElement("div");
+            container.id = "pip-root";
+            pipWindow.document.body.appendChild(container);
+
+            // 動的インポートを使用してSupportPanelをインクルード
+            const { default: SupportPanel } = await import("@/components/SupportPanel");
+            const root = createRoot(container);
+            root.render(
+                <div className="h-screen bg-slate-50 overflow-hidden">
+                    <SupportPanel
+                        userData={userData as UserInput}
+                        isOpen={true}
+                        onToggle={() => pipWindow.close()}
+                        isStandalone={true}
+                    />
+                </div>
+            );
+
+            // ウィンドウが閉じられた時のクリーンアップ
+            pipWindow.addEventListener("pagehide", () => {
+                root.unmount();
+            });
+
+        } catch (err) {
+            console.error(err);
+            openSupportWindow();
+        }
+    };
+
     // Force memo tab if hearing is not complete
     useEffect(() => {
         if (!isHearingComplete) {
@@ -92,11 +158,11 @@ export default function HearingMemo({
                         </a>
 
                         <button
-                            onClick={openSupportWindow}
-                            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-white border border-slate-100 rounded-xl hover:bg-indigo-50/50 hover:border-indigo-200 transition-all group/support shadow-sm"
+                            onClick={openPiPSupport}
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all group/support shadow-xl shadow-slate-200"
                         >
-                            <HelpCircle className="w-3 h-3 text-indigo-600" />
-                            <span className="text-[9px] font-black text-slate-600 tracking-tight">SUPPORT PANEL</span>
+                            <Maximize2 className="w-3 h-3 text-blue-400 group-hover/support:scale-110 transition-transform" />
+                            <span className="text-[9px] font-black tracking-tight">AOT MODE</span>
                         </button>
                     </div>
 

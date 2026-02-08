@@ -8,17 +8,18 @@ import Image from "next/image";
 import { UserInput, Phase } from "@/types";
 
 interface AgendaProps {
-    onStart: () => void;
-    onGoToPhase: (phase: Phase) => void;
+    onStart?: () => void;
+    onGoToPhase?: (phase: Phase) => void;
     userData: UserInput | null;
+    isPreview?: boolean;
 }
 
-export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) {
-    const [isVisible, setIsVisible] = useState(false);
+export default function Agenda({ onStart, onGoToPhase, userData, isPreview = false }: AgendaProps) {
+    const [isVisible, setIsVisible] = useState(isPreview);
 
     useEffect(() => {
-        setIsVisible(true);
-    }, []);
+        if (!isPreview) setIsVisible(true);
+    }, [isPreview]);
 
     const sections = [
         {
@@ -147,7 +148,7 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                                     {/* 分岐選択エリア */}
                                     <div className="flex divide-x divide-gray-100 bg-slate-50/30">
                                         <button
-                                            onClick={() => onGoToPhase("hearing")}
+                                            onClick={() => onGoToPhase?.("hearing")}
                                             className="flex-1 p-6 hover:bg-white transition-all text-center group/btn relative"
                                         >
                                             <div className="absolute top-0 left-0 w-full h-1 bg-slate-200 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
@@ -157,7 +158,7 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                                             </p>
                                         </button>
                                         <button
-                                            onClick={() => onGoToPhase("simulation")}
+                                            onClick={() => onGoToPhase?.("simulation")}
                                             className="flex-1 p-6 hover:bg-white transition-all text-center group/btn relative"
                                         >
                                             <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
@@ -178,7 +179,7 @@ export default function Agenda({ onStart, onGoToPhase, userData }: AgendaProps) 
                                     ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}
                                 `}
                                 style={{ transitionDelay: `${index * 100}ms` }}
-                                onClick={() => onGoToPhase(section.phase)}
+                                onClick={() => onGoToPhase?.(section.phase)}
                             >
                                 <div className="flex items-center p-5">
                                     {/* 番号とアイコン */}

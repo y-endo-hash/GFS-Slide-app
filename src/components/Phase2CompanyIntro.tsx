@@ -12,12 +12,13 @@ import Image from "next/image";
 
 interface Phase2CompanyIntroProps {
     userData?: UserInput | null;
-    onNext: () => void;
-    onBack: () => void;
-    onGoToAgenda: () => void;
+    onNext?: () => void;
+    onBack?: () => void;
+    onGoToAgenda?: () => void;
+    isPreview?: boolean;
 }
 
-export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAgenda }: Phase2CompanyIntroProps) {
+export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAgenda, isPreview = false }: Phase2CompanyIntroProps) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [hoveredProgram, setHoveredProgram] = useState<number | null>(null);
@@ -202,7 +203,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         {/* 背景の巨大なぼかし */}
                         <div className="absolute top-0 left-0 w-[80vw] h-[80vw] bg-blue-500/20 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2"></div>
                         <div className="absolute bottom-0 right-0 w-[60vw] h-[60vw] bg-cyan-500/20 rounded-full blur-[150px] translate-x-1/2 translate-y-1/2"></div>
-                        
+
                         <div className="relative z-10 w-full px-12 text-center animate-fade-in">
                             <h3 className="font-black text-white leading-tight mb-20 text-[10vw] drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                                 株式会社GFS Education

@@ -18,15 +18,16 @@ import Image from "next/image";
 export default function Home() {
   // フェーズ順序: agenda -> company -> hearing -> simulation -> solution -> closing
   const [phase, setPhase] = useState<Phase>("agenda");
+  const [subStep, setSubStep] = useState<number | string>(0);
   const [userData, setUserData] = useState<UserInput | null>(null);
+  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
 
   // 他のタブ（サポートパネル等）にフェーズ情報を同期
   useEffect(() => {
     const channel = new BroadcastChannel("gfs-sync");
-    channel.postMessage({ type: "PHASE_CHANGE", phase });
+    channel.postMessage({ type: "SYNC_STATE", phase, subStep, simulationResult, userData });
     return () => channel.close();
-  }, [phase]);
-  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  }, [phase, subStep, simulationResult, userData]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isHearingMemoOpen, setIsHearingMemoOpen] = useState(false);
@@ -90,6 +91,7 @@ export default function Home() {
 
   const goToPhase = (targetPhase: Phase) => {
     setPhase(targetPhase);
+    setSubStep(0); // フェーズ切り替え時にサブステップをリセット
   };
 
   // ローディング画面
@@ -238,6 +240,7 @@ export default function Home() {
             onNext={() => goToPhase("solution")}
             onBack={() => goToPhase("hearing")}
             onGoToAgenda={() => goToPhase("agenda")}
+            onSubStepChange={setSubStep}
           />
         )}
 
@@ -248,6 +251,7 @@ export default function Home() {
             onNext={() => goToPhase("closing")}
             onBack={() => goToPhase("simulation")}
             onGoToAgenda={() => goToPhase("agenda")}
+            onSubStepChange={setSubStep}
           />
         )}
 
@@ -257,6 +261,7 @@ export default function Home() {
             simulationResult={simulationResult}
             onBack={() => goToPhase("solution")}
             onGoToAgenda={() => goToPhase("agenda")}
+            onSubStepChange={setSubStep}
           />
         )}
       </div>

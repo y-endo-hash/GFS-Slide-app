@@ -14,14 +14,17 @@ import Image from "next/image";
 interface Phase4SolutionProps {
     userData: UserInput;
     simulationResult: SimulationResult;
-    onNext: () => void;
-    onBack: () => void;
-    onGoToAgenda: () => void;
+    onNext?: () => void;
+    onBack?: () => void;
+    onGoToAgenda?: () => void;
+    onSubStepChange?: (subStep: number | string) => void;
+    subStep?: number | string;
+    isPreview?: boolean;
 }
 
-export default function Phase4Solution({ userData, simulationResult, onNext, onBack, onGoToAgenda }: Phase4SolutionProps) {
-    const [showContent, setShowContent] = useState(false);
-    const [activeSection, setActiveSection] = useState(0);
+export default function Phase4Solution({ userData, simulationResult, onNext, onBack, onGoToAgenda, onSubStepChange, subStep, isPreview = false }: Phase4SolutionProps) {
+    const [showContent, setShowContent] = useState(isPreview);
+    const [activeSection, setActiveSection] = useState(isPreview && typeof subStep === 'number' ? subStep : 0);
     const [showGoalDetail, setShowGoalDetail] = useState(false);
     const [showPracticeDetail, setShowPracticeDetail] = useState(false);
     const [showComparison, setShowComparison] = useState(false);
@@ -35,11 +38,23 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
     }, []);
 
     const nextSection = () => {
-        onNext();
+        if (activeSection < 0) { // Future sections
+            const next = activeSection + 1;
+            setActiveSection(next);
+            onSubStepChange?.(next);
+        } else {
+            onNext?.();
+        }
     };
 
     const prevSection = () => {
-        onBack();
+        if (activeSection > 0) {
+            const prev = activeSection - 1;
+            setActiveSection(prev);
+            onSubStepChange?.(prev);
+        } else {
+            onBack?.();
+        }
     };
 
     return (

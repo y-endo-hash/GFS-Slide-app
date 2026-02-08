@@ -13,11 +13,12 @@ interface Phase1HearingProps {
     onSubmit: (data: UserInput) => void;
     onBack: () => void;
     onGoToAgenda: () => void;
+    isPreview?: boolean;
 }
 
-export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda }: Phase1HearingProps) {
+export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, isPreview = false }: Phase1HearingProps) {
     const [step, setStep] = useState(0);
-    const [showContent, setShowContent] = useState(false);
+    const [showContent, setShowContent] = useState(isPreview);
     const [formData, setFormData] = useState<UserInput>({
         name: "",
         age: 35,
@@ -37,8 +38,8 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda }: Phase1
     const [errors, setErrors] = useState<Partial<Record<keyof UserInput, string>>>({});
 
     useEffect(() => {
-        setShowContent(true);
-    }, []);
+        if (!isPreview) setShowContent(true);
+    }, [isPreview]);
 
     // ステップが切り替わったときにトップにスクロール
     useEffect(() => {

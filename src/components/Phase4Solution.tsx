@@ -125,9 +125,9 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                                 </div>
 
                                 {/* ②体系的に学ぶ */}
-                                <div className="absolute bottom-4 left-0 -translate-x-1/3 translate-y-1/2 flex items-center">
+                                <div className="absolute bottom-4 left-0 -translate-x-[45%] translate-y-1/2 flex items-center">
                                     {/* 免許の例え (黄色) - 体系的に学ぶの左側に配置 */}
-                                    <div className="mr-8 group/license-btn">
+                                    <div className="mr-16 group/license-btn">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();

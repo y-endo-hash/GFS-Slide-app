@@ -124,38 +124,36 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
                                     </div>
                                 </div>
 
-                                {/* ②体系的に学ぶ */}
-                                <div className="absolute bottom-4 left-0 -translate-x-[55%] translate-y-1/2 flex items-center">
-                                    {/* 免許の例え (黄色) - 体系的に学ぶの左側に配置 */}
-                                    <div className="mr-32 group/license-btn">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowLicenseMetaphor(true);
-                                            }}
-                                            className="w-16 h-16 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-xl transition-all duration-500 transform hover:scale-110 hover:shadow-amber-200/50 active:scale-95 border-4 border-white"
-                                        >
-                                            <Car className="w-8 h-8" />
-                                        </button>
-                                        <div className="absolute left-0 -bottom-14 whitespace-nowrap bg-amber-500 text-white text-[10px] font-black px-4 py-2 rounded-lg pointer-events-none opacity-0 group-hover/license-btn:opacity-100 transition-all duration-300 transform -translate-y-1 group-hover/license-btn:translate-y-0 shadow-lg z-50">
-                                            免許の例えを確認
-                                            <div className="absolute left-6 top-0 -translate-x-1/2 -translate-y-full border-8 border-transparent border-b-amber-500" />
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        className="flex flex-col items-center text-center w-64 cursor-pointer group/learn transform hover:-translate-y-1 transition-all duration-300"
-                                        onClick={() => setShowLearningComparison(true)}
+                                {/* 免許の例え (黄色) - 完全に独立した配置にして当たり判定を分離 */}
+                                <div className="absolute bottom-4 left-[-240px] translate-y-1/2 group/license-btn">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowLicenseMetaphor(true);
+                                        }}
+                                        className="w-16 h-16 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-xl transition-all duration-500 transform hover:scale-110 hover:shadow-amber-200/50 active:scale-95 border-4 border-white"
                                     >
-                                        <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">
-                                            <div className="absolute inset-0 rounded-full bg-blue-600 opacity-0 group-hover/learn:opacity-10 transition-opacity group-hover/learn:animate-ping" />
-                                            <Layers className="w-10 h-10 text-blue-900 group-hover/learn:text-blue-600 transition-colors" />
-                                        </div>
-                                        <h4 className="text-xl font-black text-blue-900 mb-1 group-hover/learn:text-blue-600 transition-colors">②体系的に学ぶ</h4>
-                                        <p className="text-slate-500 text-sm font-medium whitespace-nowrap">「断片的な知識」を「活かせる線」へ繋げる</p>
-                                        <div className="mt-2 text-blue-500 text-xs font-bold opacity-0 group-hover/learn:opacity-100 transition-opacity flex items-center gap-1">
-                                            比較を見る <ArrowRight className="w-3 h-3" />
-                                        </div>
+                                        <Car className="w-8 h-8" />
+                                    </button>
+                                    <div className="absolute left-0 -bottom-14 whitespace-nowrap bg-amber-500 text-white text-[10px] font-black px-4 py-2 rounded-lg pointer-events-none opacity-0 group-hover/license-btn:opacity-100 transition-all duration-300 transform -translate-y-1 group-hover/license-btn:translate-y-0 shadow-lg z-50">
+                                        免許の例えを確認
+                                        <div className="absolute left-6 top-0 -translate-x-1/2 -translate-y-full border-8 border-transparent border-b-amber-500" />
+                                    </div>
+                                </div>
+
+                                {/* ②体系的に学ぶ */}
+                                <div
+                                    className="absolute bottom-4 left-0 -translate-x-[55%] translate-y-1/2 flex flex-col items-center text-center w-64 cursor-pointer group/learn transform hover:-translate-y-1 transition-all duration-300"
+                                    onClick={() => setShowLearningComparison(true)}
+                                >
+                                    <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">
+                                        <div className="absolute inset-0 rounded-full bg-blue-600 opacity-0 group-hover/learn:opacity-10 transition-opacity group-hover/learn:animate-ping" />
+                                        <Layers className="w-10 h-10 text-blue-900 group-hover/learn:text-blue-600 transition-colors" />
+                                    </div>
+                                    <h4 className="text-xl font-black text-blue-900 mb-1 group-hover/learn:text-blue-600 transition-colors">②体系的に学ぶ</h4>
+                                    <p className="text-slate-500 text-sm font-medium whitespace-nowrap">「断片的な知識」を「活かせる線」へ繋げる</p>
+                                    <div className="mt-2 text-blue-500 text-xs font-bold opacity-0 group-hover/learn:opacity-100 transition-opacity flex items-center gap-1">
+                                        比較を見る <ArrowRight className="w-3 h-3" />
                                     </div>
                                 </div>
 

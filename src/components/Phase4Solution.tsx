@@ -110,7 +110,7 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
 
                                 {/* ①ゴールを決める */}
                                 <div
-                                    className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center text-center w-64 cursor-pointer group/goal transform hover:-translate-y-1 transition-all duration-300"
+                                    className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center text-center w-56 cursor-pointer group/goal transform hover:-translate-y-1 transition-all duration-300"
                                     onClick={() => setShowGoalDetail(true)}
                                 >
                                     <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">
@@ -143,7 +143,7 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
 
                                 {/* ②体系的に学ぶ */}
                                 <div
-                                    className="absolute bottom-4 left-0 -translate-x-[55%] translate-y-1/2 flex flex-col items-center text-center w-64 cursor-pointer group/learn transform hover:-translate-y-1 transition-all duration-300"
+                                    className="absolute bottom-4 left-0 -translate-x-[55%] translate-y-1/2 flex flex-col items-center text-center w-56 cursor-pointer group/learn transform hover:-translate-y-1 transition-all duration-300"
                                     onClick={() => setShowLearningComparison(true)}
                                 >
                                     <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">
@@ -159,7 +159,7 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
 
                                 {/* ③少額から実践する */}
                                 <div
-                                    className="absolute bottom-4 right-0 translate-x-1/3 translate-y-1/2 flex flex-col items-center text-center w-64 cursor-pointer group/practice transform hover:-translate-y-1 transition-all duration-300"
+                                    className="absolute bottom-4 right-0 translate-x-1/3 translate-y-1/2 flex flex-col items-center text-center w-56 cursor-pointer group/practice transform hover:-translate-y-1 transition-all duration-300"
                                     onClick={() => setShowPracticeDetail(true)}
                                 >
                                     <div className="w-20 h-20 rounded-full bg-white shadow-2xl border-4 border-slate-100 flex items-center justify-center mb-4 transition-all group/icon-container">

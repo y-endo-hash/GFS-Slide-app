@@ -96,7 +96,7 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
             type: "custom",
             title: "GFSのコンセプト",
             icon: Heart,
-            color: "from-rose-500 to-pink-600",
+            color: "from-pink-400 to-rose-400",
             characterImage: "/slides/character_happy_new.png",
             content: {
                 heading: "お金でやりたいことを諦めない世の中を創る",

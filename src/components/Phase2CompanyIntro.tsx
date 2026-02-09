@@ -214,6 +214,8 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
     }, [isAutoPlaying, slides.length]);
 
     const renderSlide = (slide: any) => {
+        if (!slide) return null;
+
         // 会社情報スライド（カスタムデザイン）
         if (slide.type === "company_info") {
             if (isFullScreen) {
@@ -1466,11 +1468,11 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         {/* スライドタイトルと説明 */}
                         <div className="mt-4 text-center">
                             <h3 className="text-xl font-bold text-gray-800 mb-1">
-                                {slides[currentSlide].title}
+                                {slides[currentSlide]?.title}
                             </h3>
-                            {slides[currentSlide].description && (
+                            {slides[currentSlide]?.description && (
                                 <p className="text-gray-600">
-                                    {slides[currentSlide].description}
+                                    {slides[currentSlide]?.description}
                                 </p>
                             )}
                         </div>

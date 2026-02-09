@@ -33,7 +33,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
     const [showArrowButton, setShowArrowButton] = useState(false);
     const [showRequiredRate, setShowRequiredRate] = useState(false);
     const [showRequiredGraph, setShowRequiredGraph] = useState(false);
-    const [activeInsightSlide, setActiveInsightSlide] = useState<number>(isPreview && typeof subStep === 'string' && subStep.startsWith('insight-') ? parseInt(subStep.split('-')[1]) : 0);
+    const insightIndex = isPreview && typeof subStep === 'string' && subStep.startsWith('insight-') ? parseInt(subStep.split('-')[1]) : 0;
+    const [activeInsightSlide, setActiveInsightSlide] = useState<number>(isNaN(insightIndex) ? 0 : insightIndex);
     const gapCardRef = useRef<HTMLDivElement>(null);
 
 

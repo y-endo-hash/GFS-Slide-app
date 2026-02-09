@@ -10,6 +10,7 @@ import { GLOSSARY, SUPPORT_QA } from "@/constants/supportData";
 import { UserInput, Phase, SimulationResult } from "@/types";
 import { cn } from "@/lib/utils";
 import { createSyncChannel, requestSync, loadStateFromLocalStorage } from "@/lib/sync";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Phase Components for Roadmap Previews
 import Agenda from "@/components/Agenda";
@@ -362,14 +363,16 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                         )} style={{ width: '100%', maxWidth: '400px', aspectRatio: '19.5/9' }}>
                                             <div className="h-full bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
                                                 <div className="w-[1200px] shrink-0 pt-4 pb-20" style={{ zoom: 0.3 }}>
-                                                    {currentPhase === "title" && <TitleScreen onStart={() => { }} />}
-                                                    {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData} isPreview />}
-                                                    {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof subStep === 'number' ? subStep : 0} onSubStepChange={(s) => { }} />}
-                                                    {currentPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                    {currentPhase === "hearing" && <Phase1Hearing onSubmit={(d) => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
-                                                    {currentPhase === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
-                                                    {currentPhase === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
-                                                    {currentPhase === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                    <ErrorBoundary fallback={<div className="p-10 text-slate-400 text-center font-bold">プレビューの読み込みに失敗しました</div>}>
+                                                        {currentPhase === "title" && <TitleScreen onStart={() => { }} />}
+                                                        {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData || defaultUserData} isPreview />}
+                                                        {currentPhase === "company" && <Phase2CompanyIntro userData={userData || defaultUserData} isPreview subStep={typeof subStep === 'number' ? subStep : 0} onSubStepChange={(s) => { }} />}
+                                                        {currentPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
+                                                        {currentPhase === "hearing" && <Phase1Hearing onSubmit={(d) => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                        {currentPhase === "simulation" && <Phase3Simulation userData={userData || defaultUserData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                        {currentPhase === "solution" && <Phase4Solution userData={userData || defaultUserData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                        {currentPhase === "closing" && <Phase5Closing userData={userData || defaultUserData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                    </ErrorBoundary>
                                                 </div>
                                                 <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/5 to-transparent pointer-events-none sticky top-[100%]" />
 
@@ -446,14 +449,16 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                                 isTransitioning ? "opacity-0 scale-98 blur-sm" : "opacity-100 scale-100 blur-0"
                                             )}>
                                                 <div className="w-[1000px] shrink-0 pt-10 pb-40" style={{ zoom: 0.4 }}>
-                                                    {explorerPhase === "title" && <TitleScreen onStart={() => { }} />}
-                                                    {explorerPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'explorer')} userData={userData} isPreview />}
-                                                    {explorerPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof explorerSubStep === 'number' ? explorerSubStep : 0} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
-                                                    {explorerPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                    {explorerPhase === "hearing" && <Phase1Hearing onSubmit={(d) => handleHearingSubmit(d, 'explorer')} onBack={() => handlePhaseChange("threeSteps", 'explorer')} onGoToAgenda={() => handlePhaseChange("agenda", 'explorer')} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
-                                                    {explorerPhase === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
-                                                    {explorerPhase === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
-                                                    {explorerPhase === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                    <ErrorBoundary fallback={<div className="p-10 text-slate-400 text-center font-bold">プレビューの読み込みに失敗しました</div>}>
+                                                        {explorerPhase === "title" && <TitleScreen onStart={() => { }} />}
+                                                        {explorerPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'explorer')} userData={userData || defaultUserData} isPreview />}
+                                                        {explorerPhase === "company" && <Phase2CompanyIntro userData={userData || defaultUserData} isPreview subStep={typeof explorerSubStep === 'number' ? explorerSubStep : 0} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                        {explorerPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
+                                                        {explorerPhase === "hearing" && <Phase1Hearing onSubmit={(d) => handleHearingSubmit(d, 'explorer')} onBack={() => handlePhaseChange("threeSteps", 'explorer')} onGoToAgenda={() => handlePhaseChange("agenda", 'explorer')} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                        {explorerPhase === "simulation" && <Phase3Simulation userData={userData || defaultUserData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                        {explorerPhase === "solution" && <Phase4Solution userData={userData || defaultUserData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                        {explorerPhase === "closing" && <Phase5Closing userData={userData || defaultUserData} simulationResult={simulationResult || undefined} isPreview subStep={explorerSubStep} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
+                                                    </ErrorBoundary>
                                                 </div>
                                                 <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/5 to-transparent pointer-events-none sticky top-[100%]" />
 

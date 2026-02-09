@@ -166,6 +166,15 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
     const renderStepContent = () => {
         const currentQuestion = questions[step];
 
+        // 防御的コーディング: ステップが範囲外の場合は何も表示しない（クラッシュ防止）
+        if (!currentQuestion) {
+            return (
+                <div className="text-center p-8">
+                    <p className="text-gray-500">読み込み中、または完了しました</p>
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-6">
                 {/* ステップヘッダー */}

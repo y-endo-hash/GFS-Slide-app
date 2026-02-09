@@ -246,7 +246,7 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
                                     {userData.name || "あなた"}様へのご提案
                                 </h1>
                                 <p className="text-slate-500 font-medium">
-                                    {userData.investmentGoal ? `「${userData.investmentGoal}」を実現するための最後のステップ` : "理想の未来を実現するための最後のステップ"}
+                                    {userData?.investmentGoal ? `「${userData.investmentGoal}」を実現するための最後のステップ` : "理想の未来を実現するための最後のステップ"}
                                 </p>
                             </div>
 
@@ -261,7 +261,7 @@ export default function Phase5Closing({ userData, simulationResult, onBack, onGo
                                         {simulationResult ? (
                                             <>
                                                 <div>
-                                                    <p className="text-sm opacity-80 mb-1">{userData.targetPeriod}年後の予測資産</p>
+                                                    <p className="text-sm opacity-80 mb-1">{userData?.targetPeriod}年後の予測資産</p>
                                                     <p className="text-2xl font-bold">{formatManYen(simulationResult.gfsEndValue)}</p>
                                                 </div>
                                                 <div>

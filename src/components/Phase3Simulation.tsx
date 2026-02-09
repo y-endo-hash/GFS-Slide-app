@@ -71,6 +71,13 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
         }
     }, [subStep, isPreview, showStep]);
 
+    // コンテンツの切り替え時（ステップ、利回り詳細、インサイトスライド）にトップへスクロール
+    useEffect(() => {
+        if (!isPreview) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, [showStep, showRequiredRate, activeInsightSlide, isPreview]);
+
     // 不足金額が表示されたときに強制スクロール
     useEffect(() => {
         if (showGapCard && gapCardRef.current && !isPreview) {

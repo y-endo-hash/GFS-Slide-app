@@ -33,6 +33,13 @@ export default function Phase4Solution({ userData, simulationResult, onNext, onB
     const [revealedBad, setRevealedBad] = useState(false);
     const [revealedGood, setRevealedGood] = useState(false);
 
+    // セクション切り替えや詳細（オーバーレイ）表示時にトップへスクロール
+    useEffect(() => {
+        if (!isPreview) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, [activeSection, showGoalDetail, showPracticeDetail, showComparison, showLicenseMetaphor, showLearningComparison, isPreview]);
+
     // Sync subStep with activeSection in preview mode
     useEffect(() => {
         if (isPreview && typeof subStep === 'number') {

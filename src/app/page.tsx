@@ -75,10 +75,10 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // フェーズが切り替わったときにトップにスクロール
+  // フェーズまたはサブステップが切り替わったときにトップにスクロール
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [phase]);
+  }, [phase, subStep]);
 
   const handleAgendaStart = () => {
     setPhase("company"); // 会社紹介から開始

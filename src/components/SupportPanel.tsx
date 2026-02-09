@@ -63,38 +63,12 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
         if (initialUserData) setUserData(initialUserData);
     }, [initialUserData]);
 
-    // データの同期（ページ間、もしくは同一ページ内の他コンポーネントと）
+
+    // Sync from props
     useEffect(() => {
-        const channel = new BroadcastChannel("gfs-sync");
-        channel.onmessage = (event) => {
-            if (event.data?.type === "SYNC_STATE") {
-                if (event.data.phase) {
-                    setCurrentPhase(event.data.phase);
-                    if (selectedPreview !== 'explorer') {
-                        setExplorerPhase(event.data.phase);
-                    }
-                }
-                if (event.data.subStep !== undefined) {
-                    setSubStep(event.data.subStep);
-                    if (selectedPreview !== 'explorer') {
-                        setExplorerSubStep(event.data.subStep);
-                    }
-                }
-                if (event.data.simulationResult) setSimulationResult(event.data.simulationResult);
-                if (event.data.userData) setUserData(event.data.userData);
-            }
-        };
-
-        // マウント時に最新データの送信を要求
-        channel.postMessage({ type: "REQUEST_SYNC" });
-
-        return () => channel.close();
-    }, [selectedPreview, subStep]);
-
-    // 初期化時に親からのpropsでも更新
-    useEffect(() => {
-        setUserData(initialUserData);
+        if (initialUserData) setUserData(initialUserData);
     }, [initialUserData]);
+
 
     const phases: { id: Phase; title: string; desc: string; hideInTimeline?: boolean }[] = [
         { id: "agenda", title: "アジェンダ", desc: "本日の流れ" },
@@ -184,11 +158,6 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
     const handleHearingSubmit = (data: UserInput, mode: 'live' | 'explorer') => {
         setUserData(data);
-
-        // Sync data to main app for consistency, but NOT phase
-        const channel = new BroadcastChannel("gfs-sync");
-        channel.postMessage({ type: "SYNC_STATE", userData: data });
-        channel.close();
 
         // Skip simulation if no name
         const targetPhase = !data.name.trim() ? "solution" : "simulation";

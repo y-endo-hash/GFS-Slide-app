@@ -23,27 +23,7 @@ export default function Home() {
   const [userData, setUserData] = useState<UserInput | null>(null);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
 
-  // 他のタブ（サポートパネル等）にフェーズ情報を同期
-  useEffect(() => {
-    const channel = new BroadcastChannel("gfs-sync");
 
-    const broadcastState = () => {
-      channel.postMessage({ type: "SYNC_STATE", phase, subStep, simulationResult, userData });
-    };
-
-    channel.onmessage = (event) => {
-      if (event.data?.type === "REQUEST_SYNC") {
-        broadcastState();
-      } else if (event.data?.type === "SYNC_STATE") {
-        if (event.data.userData) setUserData(event.data.userData);
-        if (event.data.simulationResult) setSimulationResult(event.data.simulationResult);
-      }
-    };
-
-    broadcastState();
-
-    return () => channel.close();
-  }, [phase, subStep, simulationResult, userData]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isHearingMemoOpen, setIsHearingMemoOpen] = useState(false);

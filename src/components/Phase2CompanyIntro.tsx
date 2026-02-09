@@ -602,8 +602,8 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         <div className="absolute bottom-10 right-10 pointer-events-none opacity-20">
                             <Image src="/mascot/mascot_happy.png" alt="" width={isPreview ? 120 : 200} height={isPreview ? 120 : 200} className="animate-float" />
                         </div>
-                        <div className="absolute top-40 left-10 pointer-events-none opacity-10">
-                            <Image src="/mascot/mascot_cheer_blue.png" alt="" width={isPreview ? 80 : 150} height={isPreview ? 80 : 150} className="animate-float-slow" />
+                        <div className="absolute top-[10%] -left-8 xl:left-0 pointer-events-none opacity-20 z-0">
+                            <Image src="/mascot/mascot_cheer_blue.png" alt="" width={isFullScreen ? 250 : 150} height={isFullScreen ? 250 : 150} className="animate-float-slow mr-12" />
                         </div>
                     </div>
                 </div>

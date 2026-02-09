@@ -291,11 +291,11 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                             <span className="text-[10px] font-black text-slate-900 tracking-[0.2em] uppercase">LIVE</span>
                                         </div>
                                         <div className={cn(
-                                            "bg-white rounded-[2.5rem] border-2 shadow-2xl overflow-hidden transition-all duration-300 relative group/live mx-auto",
+                                            "bg-white rounded-[2rem] border-2 shadow-2xl overflow-hidden transition-all duration-300 relative group/live mx-auto",
                                             selectedPreview === 'live' ? "border-blue-600 shadow-blue-100 ring-4 ring-blue-600/20" : "border-red-500 shadow-red-100"
-                                        )} style={{ width: '320px', aspectRatio: '9/19.5' }}>
+                                        )} style={{ width: '450px', aspectRatio: '19.5/9' }}>
                                             <div className="h-full bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
-                                                <div className="w-[800px] shrink-0 pt-4 pb-20" style={{ zoom: 0.4 }}>
+                                                <div className="w-[1000px] shrink-0 pt-4 pb-20" style={{ zoom: 0.45 }}>
                                                     {currentPhase === "title" && <TitleScreen onStart={() => { }} />}
                                                     {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData} isPreview />}
                                                     {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof subStep === 'number' ? subStep : 0} onSubStepChange={(s) => { }} />}

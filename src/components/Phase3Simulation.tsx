@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import {
     TrendingUp, TrendingDown, AlertTriangle, CheckCircle, ArrowRight,
-    PiggyBank, Rocket, Target, Lightbulb, BarChart3, ChevronLeft, FileText, Sparkles,
+    PiggyBank, Rocket, Target, Lightbulb, BarChart3, ChevronLeft, ChevronRight, FileText, Sparkles,
     User, Wallet, Lock as LockIcon, ChevronsRight
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
@@ -509,7 +509,36 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                         )}
 
                                         {/* スライドメイン（スクロール可能エリア） */}
-                                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar p-6">
+                                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar p-6 relative group/insight-container">
+                                            {/* スライド内部のナビゲーション矢印 (ホバー時のみ表示) */}
+                                            <div
+                                                className={`absolute left-0 top-0 bottom-0 w-20 z-40 flex items-center justify-start pl-4 cursor-pointer group/nav-left transition-opacity duration-300 ${activeInsightSlide === 0 ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/insight-container:opacity-100"}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const newSlide = Math.max(0, activeInsightSlide - 1);
+                                                    setActiveInsightSlide(newSlide);
+                                                    onSubStepChange?.(`insight-${newSlide}`);
+                                                }}
+                                            >
+                                                <div className="p-3 bg-white/40 rounded-full backdrop-blur-md border border-white/30 shadow-xl group-hover/nav-left:translate-x-1 transition-all">
+                                                    <ChevronLeft className="w-6 h-6 text-blue-900" />
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                className={`absolute right-0 top-0 bottom-0 w-20 z-40 flex items-center justify-end pr-4 cursor-pointer group/nav-right transition-opacity duration-300 ${activeInsightSlide === 4 ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/insight-container:opacity-100"}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const newSlide = Math.min(4, activeInsightSlide + 1);
+                                                    setActiveInsightSlide(newSlide);
+                                                    onSubStepChange?.(`insight-${newSlide}`);
+                                                }}
+                                            >
+                                                <div className="p-3 bg-white/40 rounded-full backdrop-blur-md border border-white/30 shadow-xl group-hover/nav-right:-translate-x-1 transition-all">
+                                                    <ChevronRight className="w-6 h-6 text-blue-900" />
+                                                </div>
+                                            </div>
+
                                             {activeInsightSlide === 0 ? (
                                                 <div className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-12">
                                                     <div className="text-center">

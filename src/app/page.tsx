@@ -204,6 +204,16 @@ export default function Home() {
         </button>
       </div>
 
+      <HearingMemo
+        userData={userData}
+        simulationResult={simulationResult}
+        isOpen={isHearingMemoOpen}
+        onToggle={() => setIsHearingMemoOpen(!isHearingMemoOpen)}
+        memoText={sideMemoText}
+        onMemoChange={setSideMemoText}
+        isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
+      />
+
       {/* メインコンテンツラップ (ズーム適用) */}
       <div
         className="transition-transform duration-300 ease-out origin-top-left"
@@ -245,15 +255,7 @@ export default function Home() {
 
         {/* Persistent Panels (Support Panel is now handled via separate window in HearingMemo) */}
 
-        <HearingMemo
-          userData={userData}
-          simulationResult={simulationResult}
-          isOpen={isHearingMemoOpen}
-          onToggle={() => setIsHearingMemoOpen(!isHearingMemoOpen)}
-          memoText={sideMemoText}
-          onMemoChange={setSideMemoText}
-          isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
-        />
+
 
         {phase === "simulation" && (
           <Phase3Simulation

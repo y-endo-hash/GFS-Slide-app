@@ -19,9 +19,43 @@ import Image from "next/image";
 export default function Home() {
   // フェーズ順序: title -> agenda -> company -> hearing -> simulation -> solution -> closing
   const [phase, setPhase] = useState<Phase>("title");
-  const [subStep, setSubStep] = useState<number | string>(0);
   const [userData, setUserData] = useState<UserInput | null>(null);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+
+  // Broadcast state changes for Support Panel synchronization
+  useEffect(() => {
+    const channel = new BroadcastChannel('gfs-sync');
+    channel.postMessage({
+      type: 'SYNC_STATE',
+      state: {
+        phase,
+        subStep,
+        userData,
+        simulationResult
+      }
+    });
+
+    // Also listen for request from late-joining Support Panel
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data.type === 'REQUEST_SYNC') {
+        channel.postMessage({
+          type: 'SYNC_STATE',
+          state: {
+            phase,
+            subStep,
+            userData,
+            simulationResult
+          }
+        });
+      }
+    };
+    channel.addEventListener('message', handleMessage);
+
+    return () => {
+      channel.removeEventListener('message', handleMessage);
+      channel.close();
+    };
+  }, [phase, subStep, userData, simulationResult]);
 
 
   const [isLoading, setIsLoading] = useState(false);

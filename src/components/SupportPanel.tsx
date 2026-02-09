@@ -80,6 +80,31 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
         }
     }, [mainPhase, mainSubStep]);
 
+    // BroadcastChannel による他タブ（メイン画面）との完全同期
+    useEffect(() => {
+        const channel = new BroadcastChannel('gfs-sync');
+
+        const handleMessage = (e: MessageEvent) => {
+            const { type, state } = e.data;
+            if (type === 'SYNC_STATE') {
+                if (state.phase) setCurrentPhase(state.phase);
+                if (state.subStep !== undefined) setSubStep(state.subStep);
+                if (state.userData) setUserData(state.userData);
+                if (state.simulationResult !== undefined) setSimulationResult(state.simulationResult);
+            }
+        };
+
+        channel.addEventListener('message', handleMessage);
+
+        // 起動時に現在の状態をリクエスト
+        channel.postMessage({ type: 'REQUEST_SYNC' });
+
+        return () => {
+            channel.removeEventListener('message', handleMessage);
+            channel.close();
+        };
+    }, []);
+
 
     const phases: { id: Phase; title: string; desc: string; hideInTimeline?: boolean }[] = [
         { id: "title", title: "Section 00: タイトル", desc: "スタート画面" },

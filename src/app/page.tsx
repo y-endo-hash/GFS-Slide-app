@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserInput, SimulationResult, Phase } from "@/types";
 import { generateSimulation } from "@/lib/simulation";
+import { createSyncChannel, syncState, requestSync } from "@/lib/sync";
 import Agenda from "@/components/Agenda";
 import Phase1Hearing from "@/components/Phase1Hearing";
 import Phase2CompanyIntro from "@/components/Phase2CompanyIntro";
@@ -19,34 +20,22 @@ import Image from "next/image";
 export default function Home() {
   // フェーズ順序: title -> agenda -> company -> hearing -> simulation -> solution -> closing
   const [phase, setPhase] = useState<Phase>("title");
+  const [subStep, setSubStep] = useState<number | string>(0);
   const [userData, setUserData] = useState<UserInput | null>(null);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
 
-  // Broadcast state changes for Support Panel synchronization
+  // 完全同期システム: BroadcastChannel + localStorage
   useEffect(() => {
-    const channel = new BroadcastChannel('gfs-sync');
-    channel.postMessage({
-      type: 'SYNC_STATE',
-      state: {
-        phase,
-        subStep,
-        userData,
-        simulationResult
-      }
-    });
+    const channel = createSyncChannel();
 
-    // Also listen for request from late-joining Support Panel
+    // 現在の状態を送信
+    const currentState = { phase, subStep, userData, simulationResult };
+    syncState(channel, currentState);
+
+    // 遅れて参加したSupport Panelからのリクエストに応答
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === 'REQUEST_SYNC') {
-        channel.postMessage({
-          type: 'SYNC_STATE',
-          state: {
-            phase,
-            subStep,
-            userData,
-            simulationResult
-          }
-        });
+        syncState(channel, currentState);
       }
     };
     channel.addEventListener('message', handleMessage);
@@ -89,10 +78,10 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // フェーズまたはサブステップが切り替わったときにトップにスクロール
+  // フェーズが切り替わったときにトップにスクロール
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [phase, subStep]);
+  }, [phase]);
 
   const handleAgendaStart = () => {
     setPhase("company"); // 会社紹介から開始
@@ -129,6 +118,11 @@ export default function Home() {
   const goToPhase = (targetPhase: Phase) => {
     setPhase(targetPhase);
     setSubStep(0); // フェーズ切り替え時にサブステップをリセット
+  };
+
+  // サブステップ変更ハンドラー
+  const handleSubStepChange = (newSubStep: number | string) => {
+    setSubStep(newSubStep);
   };
 
   // ローディング画面
@@ -255,6 +249,8 @@ export default function Home() {
             onNext={handleCompanyNext}
             onBack={() => goToPhase("agenda")}
             onGoToAgenda={() => goToPhase("agenda")}
+            subStep={typeof subStep === 'number' ? subStep : 0}
+            onSubStepChange={handleSubStepChange}
           />
         )}
 
@@ -271,6 +267,8 @@ export default function Home() {
             onSubmit={handleHearingComplete}
             onBack={() => goToPhase("threeSteps")}
             onGoToAgenda={() => goToPhase("agenda")}
+            subStep={subStep}
+            onSubStepChange={handleSubStepChange}
           />
         )}
 
@@ -285,7 +283,8 @@ export default function Home() {
             onNext={() => goToPhase("solution")}
             onBack={() => goToPhase("hearing")}
             onGoToAgenda={() => goToPhase("agenda")}
-            onSubStepChange={setSubStep}
+            subStep={subStep}
+            onSubStepChange={handleSubStepChange}
           />
         )}
 
@@ -303,7 +302,8 @@ export default function Home() {
               }
             }}
             onGoToAgenda={() => goToPhase("agenda")}
-            onSubStepChange={setSubStep}
+            subStep={subStep}
+            onSubStepChange={handleSubStepChange}
           />
         )}
 
@@ -313,7 +313,8 @@ export default function Home() {
             simulationResult={simulationResult || undefined}
             onBack={() => goToPhase("solution")}
             onGoToAgenda={() => goToPhase("agenda")}
-            onSubStepChange={setSubStep}
+            subStep={subStep}
+            onSubStepChange={handleSubStepChange}
           />
         )}
       </div>

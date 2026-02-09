@@ -9,6 +9,7 @@ import {
 import { GLOSSARY, SUPPORT_QA } from "@/constants/supportData";
 import { UserInput, Phase, SimulationResult } from "@/types";
 import { cn } from "@/lib/utils";
+import { createSyncChannel, requestSync, loadStateFromLocalStorage } from "@/lib/sync";
 
 // Phase Components for Roadmap Previews
 import Agenda from "@/components/Agenda";
@@ -82,11 +83,12 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
     // BroadcastChannel による他タブ（メイン画面）との完全同期
     useEffect(() => {
-        const channel = new BroadcastChannel('gfs-sync');
+        const channel = createSyncChannel();
 
         const handleMessage = (e: MessageEvent) => {
             const { type, state } = e.data;
-            if (type === 'SYNC_STATE') {
+            if (type === 'SYNC_STATE' && state) {
+                // メイン画面からの状態更新を受信
                 if (state.phase) setCurrentPhase(state.phase);
                 if (state.subStep !== undefined) setSubStep(state.subStep);
                 if (state.userData) setUserData(state.userData);
@@ -97,12 +99,43 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
         channel.addEventListener('message', handleMessage);
 
         // 起動時に現在の状態をリクエスト
-        channel.postMessage({ type: 'REQUEST_SYNC' });
+        requestSync(channel);
+
+        // フォールバック: localStorageから初期状態を読み込み
+        setTimeout(() => {
+            const savedState = loadStateFromLocalStorage();
+            if (savedState) {
+                setCurrentPhase(savedState.phase);
+                setSubStep(savedState.subStep);
+                if (savedState.userData) setUserData(savedState.userData);
+                if (savedState.simulationResult) setSimulationResult(savedState.simulationResult);
+            }
+        }, 500);
 
         return () => {
             channel.removeEventListener('message', handleMessage);
             channel.close();
         };
+    }, []);
+
+    // localStorage監視による二重化同期（BroadcastChannelのフォールバック）
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'gfs-app-state' && e.newValue) {
+                try {
+                    const state = JSON.parse(e.newValue);
+                    if (state.phase) setCurrentPhase(state.phase);
+                    if (state.subStep !== undefined) setSubStep(state.subStep);
+                    if (state.userData) setUserData(state.userData);
+                    if (state.simulationResult !== undefined) setSimulationResult(state.simulationResult);
+                } catch (error) {
+                    console.error('[SupportPanel] Failed to parse storage state:', error);
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
 

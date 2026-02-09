@@ -97,3 +97,17 @@ export interface Roadmap {
   expectedReturnRate: number;
   yearsToGoal: number;
 }
+
+// 同期システム用の型定義
+export interface AppState {
+  phase: Phase;
+  subStep: number | string;
+  userData: UserInput | null;
+  simulationResult: SimulationResult | null;
+}
+
+export interface SyncMessage {
+  type: 'SYNC_STATE' | 'REQUEST_SYNC' | 'PING' | 'PONG';
+  state?: AppState;
+  timestamp?: number;
+}

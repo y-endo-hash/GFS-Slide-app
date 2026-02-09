@@ -180,7 +180,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                             <span className="text-slate-900">{userData.name || "あなた"}様の未来予想図</span>
                             {!showSecondHalf && (
                                 <button
-                                    onClick={handleSkipAnimation}
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); handleSkipAnimation(); }}
                                     title="演出をスキップ"
                                     className="ml-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-600 text-white hover:bg-black transition-all duration-300 shadow-lg ring-2 ring-white"
                                 >
@@ -224,7 +225,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                             <div className="flex flex-col items-center gap-6 py-12 animate-bounce-gentle">
                                 <p className="text-slate-500 font-black text-lg tracking-widest uppercase italic">もしも...</p>
                                 <button
-                                    onClick={() => setShowSavingsResult(true)}
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); setShowSavingsResult(true); }}
                                     className="group relative px-12 py-6 flex items-center justify-center bg-gradient-to-r from-slate-600 to-slate-700 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-400 hover:shadow-[0_30px_70px_rgba(71,85,105,0.3)] hover:border-slate-300 transition-all duration-500 transform hover:scale-105 active:scale-95"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
@@ -309,7 +311,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                 <div className="mt-16 flex flex-col items-center gap-8 animate-fade-in-scale-luxury">
                                     <p className="text-slate-500 font-black text-xl tracking-widest uppercase italic">Solution is here</p>
                                     <button
-                                        onClick={() => setShowSecondHalf(true)}
+                                        type="button"
+                                        onClick={(e) => { e.preventDefault(); setShowSecondHalf(true); }}
                                         className="group relative w-32 h-32 flex items-center justify-center bg-white rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100 hover:shadow-[0_30px_70px_rgba(59,130,246,0.2)] hover:border-blue-200 transition-all duration-500 transform hover:scale-110 active:scale-95"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-transparent opacity-0 group-hover:opacity-100 rounded-full transition-opacity"></div>
@@ -516,6 +519,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                             <div
                                                 className={`absolute left-0 top-0 bottom-0 w-20 z-40 flex items-center justify-start pl-4 cursor-pointer group/nav-left transition-opacity duration-300 ${activeInsightSlide === 0 ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/insight-container:opacity-100"}`}
                                                 onClick={(e) => {
+                                                    e.preventDefault();
                                                     e.stopPropagation();
                                                     const newSlide = Math.max(0, activeInsightSlide - 1);
                                                     setActiveInsightSlide(newSlide);
@@ -530,6 +534,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                             <div
                                                 className={`absolute right-0 top-0 bottom-0 w-20 z-40 flex items-center justify-end pr-4 cursor-pointer group/nav-right transition-opacity duration-300 ${activeInsightSlide === 4 ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/insight-container:opacity-100"}`}
                                                 onClick={(e) => {
+                                                    e.preventDefault();
                                                     e.stopPropagation();
                                                     const newSlide = Math.min(4, activeInsightSlide + 1);
                                                     setActiveInsightSlide(newSlide);
@@ -612,7 +617,9 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                     {[0, 1, 2, 3, 4].map(i => (
                                                         <button
                                                             key={i}
-                                                            onClick={() => {
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
                                                                 setActiveInsightSlide(i);
                                                                 onSubStepChange?.(`insight-${i}`);
                                                             }}
@@ -625,7 +632,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                         variant="outline"
                                                         size="sm"
                                                         disabled={activeInsightSlide === 0}
-                                                        onClick={() => {
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
                                                             const newSlide = Math.max(0, activeInsightSlide - 1);
                                                             setActiveInsightSlide(newSlide);
                                                             onSubStepChange?.(`insight-${newSlide}`);
@@ -638,7 +646,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                                         variant="outline"
                                                         size="sm"
                                                         disabled={activeInsightSlide === 4}
-                                                        onClick={() => {
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
                                                             const newSlide = Math.min(4, activeInsightSlide + 1);
                                                             setActiveInsightSlide(newSlide);
                                                             onSubStepChange?.(`insight-${newSlide}`);
@@ -665,7 +674,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                             <div className="max-w-4xl mx-auto px-4">
                                 {!showRequiredRate ? (
                                     <button
-                                        onClick={() => setShowRequiredRate(true)}
+                                        type="button"
+                                        onClick={(e) => { e.preventDefault(); setShowRequiredRate(true); }}
                                         className="w-full bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-12 md:p-16 rounded-[4rem] border-8 border-white shadow-[0_40px_80px_-20px_rgba(15,23,42,0.4)] relative overflow-hidden group transition-all hover:scale-[1.01] hover:shadow-[0_50px_100px_-20px_rgba(30,58,138,0.5)] active:scale-95"
                                     >
                                         <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -718,7 +728,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                         {!showRequiredGraph ? (
                             <div className="mt-12 flex justify-center">
                                 <button
-                                    onClick={() => setShowRequiredGraph(true)}
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); setShowRequiredGraph(true); }}
                                     className="w-full bg-slate-950 p-12 md:p-16 rounded-[4rem] border-4 border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.3)] relative overflow-hidden group transition-all hover:scale-[1.01] active:scale-95"
                                 >
                                     <div className="absolute inset-0 bg-blue-500/5 animate-pulse"></div>
@@ -744,7 +755,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                             {userData.name}様に必要な利回りでの資産推移グラフ
                                         </h4>
                                         <button
-                                            onClick={() => setShowRequiredGraph(false)}
+                                            type="button"
+                                            onClick={(e) => { e.preventDefault(); setShowRequiredGraph(false); }}
                                             className="bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors uppercase tracking-widest border border-slate-700"
                                         >
                                             CLOSE

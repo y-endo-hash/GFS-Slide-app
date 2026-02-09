@@ -98,11 +98,19 @@ export default function Agenda({ onStart, onGoToPhase, userData, isPreview = fal
             <div className="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20" />
             <div className="absolute bottom-0 right-0 w-80 h-80 bg-amber-200 rounded-full blur-3xl opacity-20" />
 
-            {/* GFSロゴ */}
-            <div className={`absolute top-8 left-8 z-20 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
+            {/* GFSロゴ & タイトルへ戻る */}
+            <div className={`absolute top-8 left-8 z-20 transition-all duration-1000 flex items-center gap-6 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
                 <div className="flex items-center gap-3">
                     <Image src="/images/gfs_logo_navy.png" alt="GFS" width={80} height={80} className="object-contain" />
                 </div>
+
+                <button
+                    onClick={() => onGoToPhase?.("title")}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-md border border-slate-200 rounded-xl text-[10px] font-black text-slate-500 hover:text-blue-600 hover:bg-white hover:border-blue-200 hover:shadow-lg transition-all group"
+                >
+                    <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+                    TITLE SCREEN
+                </button>
             </div>
 
             {/* メインコンテンツ */}

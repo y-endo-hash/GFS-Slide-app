@@ -12,12 +12,13 @@ import Phase5Closing from "@/components/Phase5Closing";
 import Phase1ThreeSteps from "@/components/Phase1ThreeSteps";
 import SupportPanel from "@/components/SupportPanel";
 import HearingMemo from "@/components/HearingMemo";
+import TitleScreen from "@/components/TitleScreen";
 import { Sparkles, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
-  // フェーズ順序: agenda -> company -> hearing -> simulation -> solution -> closing
-  const [phase, setPhase] = useState<Phase>("agenda");
+  // フェーズ順序: title -> agenda -> company -> hearing -> simulation -> solution -> closing
+  const [phase, setPhase] = useState<Phase>("title");
   const [subStep, setSubStep] = useState<number | string>(0);
   const [userData, setUserData] = useState<UserInput | null>(null);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
@@ -211,7 +212,7 @@ export default function Home() {
         onToggle={() => setIsHearingMemoOpen(!isHearingMemoOpen)}
         memoText={sideMemoText}
         onMemoChange={setSideMemoText}
-        isHearingComplete={["agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
+        isHearingComplete={["title", "agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
       />
 
       {/* メインコンテンツラップ (ズーム適用) */}
@@ -224,6 +225,10 @@ export default function Home() {
           minHeight: '100vh'
         }}
       >
+        {phase === "title" && (
+          <TitleScreen onStart={() => goToPhase("agenda")} />
+        )}
+
         {phase === "agenda" && (
           <Agenda onStart={handleAgendaStart} onGoToPhase={goToPhase} userData={userData} />
         )}

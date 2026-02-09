@@ -75,6 +75,7 @@ export interface PhaseProps {
 }
 
 export type Phase =
+  | 'title'        // タイトル画面 (New)
   | 'agenda'       // 目次
   | 'company'      // Phase 2: 会社紹介
   | 'threeSteps'   // 資産形成の3ステップ (New)

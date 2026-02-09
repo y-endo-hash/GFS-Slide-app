@@ -1280,37 +1280,37 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                     </div>
                 )}
 
-                <div className={`mx-auto w-full relative z-10 transition-all duration-700 ${isFullScreen ? "max-w-[95%] space-y-16" : "max-w-4xl space-y-4"}`}>
-                    <div className="flex items-center gap-6 mb-6">
+                <div className={`mx-auto w-full relative z-10 transition-all duration-700 ${isFullScreen ? "max-w-[95%] space-y-16" : "max-w-4xl space-y-6"}`}>
+                    <div className="flex items-center gap-6 mb-8">
                         {slide.icon && (
-                            <div className={`bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center transition-all ${isFullScreen ? "p-8 w-24 h-24" : "p-4 w-16 h-16"}`}>
-                                <slide.icon className={`transition-all ${isFullScreen ? "w-16 h-16" : "w-10 h-10"} animate-bounce-gentle`} />
+                            <div className={`bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center transition-all ${isFullScreen ? "p-8 w-24 h-24" : "p-5 w-20 h-20"}`}>
+                                <slide.icon className={`transition-all ${isFullScreen ? "w-16 h-16" : "w-12 h-12"} animate-bounce-gentle`} />
                             </div>
                         )}
                         <div>
                             {isFullScreen && <p className="text-3xl font-bold opacity-60 mb-4 uppercase tracking-[0.5em] font-serif">Section 01 / Concept</p>}
-                            <h2 className={`font-black transition-all ${isFullScreen ? "text-6xl md:text-9xl mb-10" : "text-3xl md:text-4xl"}`}>
+                            <h2 className={`font-black transition-all ${isFullScreen ? "text-6xl md:text-9xl mb-10" : "text-4xl md:text-5xl"}`}>
                                 {slide.title}
                             </h2>
                         </div>
                     </div>
 
-                    <div className={`transition-all ${isFullScreen ? "space-y-16 pl-12 border-l-[12px] border-white/20" : "space-y-4"}`}>
-                        <h3 className={`font-black mb-4 transition-all ${isFullScreen ? "text-5xl md:text-8xl leading-tight" : "text-2xl md:text-3xl"}`}>
+                    <div className={`transition-all ${isFullScreen ? "space-y-16 pl-12 border-l-[12px] border-white/20" : "space-y-6"}`}>
+                        <h3 className={`font-black mb-6 transition-all ${isFullScreen ? "text-5xl md:text-8xl leading-tight" : "text-3xl md:text-4xl"}`}>
                             {slide.content?.heading}
                         </h3>
                         {slide.content?.subheading && (
-                            <p className={`opacity-90 font-bold transition-all ${isFullScreen ? "text-3xl md:text-5xl mb-16" : "text-xl md:text-2xl mb-6"}`}>
+                            <p className={`opacity-90 font-bold transition-all ${isFullScreen ? "text-3xl md:text-5xl mb-16" : "text-2xl md:text-3xl mb-10"}`}>
                                 {slide.content.subheading}
                             </p>
                         )}
-                        <ul className={`${isFullScreen ? "grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12" : "space-y-3 md:space-y-4"}`}>
+                        <ul className={`${isFullScreen ? "grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12" : "space-y-5 md:space-y-6"}`}>
                             {slide.content?.points.map((point: string, index: number) => (
                                 <li key={index} className="flex items-start gap-8 transition-all">
                                     <div className="mt-4 text-white/60">
-                                        <div className={`bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,1)] transition-all ${isFullScreen ? "w-8 h-8" : "w-3 h-3"}`} />
+                                        <div className={`bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,1)] transition-all ${isFullScreen ? "w-8 h-8" : "w-4 h-4"}`} />
                                     </div>
-                                    <span className={`font-bold transition-all ${isFullScreen ? "text-3xl md:text-5xl leading-tight" : "text-lg md:text-xl"}`}>
+                                    <span className={`font-extrabold transition-all ${isFullScreen ? "text-3xl md:text-5xl leading-tight" : "text-xl md:text-2xl"}`}>
                                         {point}
                                     </span>
                                 </li>

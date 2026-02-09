@@ -18,6 +18,7 @@ import Phase2CompanyIntro from "@/components/Phase2CompanyIntro";
 import Phase3Simulation from "@/components/Phase3Simulation";
 import Phase4Solution from "@/components/Phase4Solution";
 import Phase5Closing from "@/components/Phase5Closing";
+import TitleScreen from "@/components/TitleScreen";
 
 interface SupportPanelProps {
     userData: UserInput;
@@ -73,6 +74,7 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
 
     const phases: { id: Phase; title: string; desc: string; hideInTimeline?: boolean }[] = [
+        { id: "title", title: "Section 00: タイトル", desc: "スタート画面" },
         { id: "agenda", title: "アジェンダ", desc: "本日の流れ" },
         { id: "company", title: "Section 01: 会社紹介", desc: "GFSについて" },
         { id: "threeSteps", title: "Section 02: 3ステップ", desc: "理想のゴールを一緒に描きましょう" },
@@ -136,6 +138,7 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
         const prevP = phases[prevIdx];
         if (prevP) {
+            // タイトル画面以外はサブステップ0から開始
             return { phase: prevP.id, subStep: 0 };
         }
         return null;
@@ -288,11 +291,12 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                             <span className="text-[10px] font-black text-slate-900 tracking-[0.2em] uppercase">LIVE</span>
                                         </div>
                                         <div className={cn(
-                                            "bg-white rounded-[2rem] border-2 shadow-2xl overflow-hidden transition-all duration-300 relative group/live",
+                                            "bg-white rounded-[2.5rem] border-2 shadow-2xl overflow-hidden transition-all duration-300 relative group/live mx-auto",
                                             selectedPreview === 'live' ? "border-blue-600 shadow-blue-100 ring-4 ring-blue-600/20" : "border-red-500 shadow-red-100"
-                                        )}>
-                                            <div className="aspect-video bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
-                                                <div className="w-[1000px] shrink-0 pt-10 pb-40" style={{ zoom: 0.4 }}>
+                                        )} style={{ width: '320px', aspectRatio: '9/19.5' }}>
+                                            <div className="h-full bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
+                                                <div className="w-[800px] shrink-0 pt-4 pb-20" style={{ zoom: 0.4 }}>
+                                                    {currentPhase === "title" && <TitleScreen onStart={() => { }} />}
                                                     {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData} isPreview />}
                                                     {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof subStep === 'number' ? subStep : 0} onSubStepChange={(s) => { }} />}
                                                     {currentPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
@@ -376,6 +380,7 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                                 isTransitioning ? "opacity-0 scale-98 blur-sm" : "opacity-100 scale-100 blur-0"
                                             )}>
                                                 <div className="w-[1000px] shrink-0 pt-10 pb-40" style={{ zoom: 0.4 }}>
+                                                    {explorerPhase === "title" && <TitleScreen onStart={() => { }} />}
                                                     {explorerPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'explorer')} userData={userData} isPreview />}
                                                     {explorerPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof explorerSubStep === 'number' ? explorerSubStep : 0} onSubStepChange={(s) => handlePhaseChange(explorerPhase, 'explorer', s)} />}
                                                     {explorerPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}

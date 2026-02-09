@@ -144,6 +144,25 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
         "配当金で生活費を賄いたい",
     ];
 
+    const occupationSuggestions = ["会社員", "公務員", "経営者", "専業主婦", "自営業", "その他"];
+    const familySuggestions = ["独身", "既婚（子供なし）", "既婚（子供1名）", "既婚（子供2名以上）", "その他"];
+
+    const handleGoalToggle = (suggestion: string) => {
+        const currentGoals = formData.investmentGoal ? formData.investmentGoal.split('、').filter(g => g.trim() !== "") : [];
+        let nextGoals: string[];
+        if (currentGoals.includes(suggestion)) {
+            nextGoals = currentGoals.filter(g => g !== suggestion);
+        } else {
+            nextGoals = [...currentGoals, suggestion];
+        }
+        setFormData({ ...formData, investmentGoal: nextGoals.join('、') });
+    };
+
+    const isGoalSelected = (suggestion: string) => {
+        const currentGoals = formData.investmentGoal ? formData.investmentGoal.split('、').filter(g => g.trim() !== "") : [];
+        return currentGoals.includes(suggestion);
+    };
+
     const renderStepContent = () => {
         const currentQuestion = questions[step];
 
@@ -185,20 +204,49 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
                                     onChange={(e) => setFormData({ ...formData, age: parseInt(toHalfWidth(e.target.value)) || 0 })}
                                     error={errors.age}
                                 />
-                                <Input
-                                    label="職業"
-                                    placeholder="例：会社員、公務員、経営者"
-                                    value={formData.occupation}
-                                    onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
-                                    error={errors.occupation}
-                                />
+                                <div>
+                                    <Input
+                                        label="職業"
+                                        placeholder="例：会社員"
+                                        value={formData.occupation}
+                                        onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                                        error={errors.occupation}
+                                    />
+                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                        {occupationSuggestions.map((s) => (
+                                            <button
+                                                key={s}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, occupation: s })}
+                                                className={`text-[10px] px-2 py-1 rounded-full border transition-all ${formData.occupation === s ? "bg-primary border-primary text-white" : "bg-white border-slate-200 text-slate-500 hover:border-primary hover:text-primary"}`}
+                                            >
+                                                {s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                            <Input
-                                label="家族構成"
-                                placeholder="例：独身、既婚（子供1名）"
-                                value={formData.familyStructure}
-                                onChange={(e) => setFormData({ ...formData, familyStructure: e.target.value })}
-                            />
+
+                            <div>
+                                <Input
+                                    label="家族構成"
+                                    placeholder="例：既婚（子供1名）"
+                                    value={formData.familyStructure}
+                                    onChange={(e) => setFormData({ ...formData, familyStructure: e.target.value })}
+                                />
+                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                    {familySuggestions.map((s) => (
+                                        <button
+                                            key={s}
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, familyStructure: s })}
+                                            className={`text-[10px] px-2 py-1 rounded-full border transition-all ${formData.familyStructure === s ? "bg-primary border-primary text-white" : "bg-white border-slate-200 text-slate-500 hover:border-primary hover:text-primary"}`}
+                                        >
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
 
                             <div className="space-y-3">
                                 <label className="text-sm font-bold text-gray-700">投資経験・興味（複数選択可）</label>
@@ -239,12 +287,12 @@ export default function Phase1Hearing({ onSubmit, onBack, onGoToAgenda, onSubSte
                                     error={errors.investmentGoal}
                                 />
                                 <div className="mt-3 flex flex-wrap gap-2">
-                                    {goalSuggestions.map((suggestion, index) => (
+                                    {goalSuggestions.map((suggestion: string, index: number) => (
                                         <button
                                             key={index}
                                             type="button"
-                                            onClick={() => setFormData({ ...formData, investmentGoal: suggestion })}
-                                            className="text-xs px-3 py-1.5 bg-blue-50 text-primary rounded-full hover:bg-blue-100 transition-colors"
+                                            onClick={() => handleGoalToggle(suggestion)}
+                                            className={`text-xs px-3 py-1.5 rounded-full transition-all border ${isGoalSelected(suggestion) ? "bg-primary border-primary text-white shadow-md scale-105" : "bg-blue-50 border-blue-100 text-primary hover:bg-blue-100"}`}
                                         >
                                             {suggestion}
                                         </button>

@@ -193,6 +193,8 @@ export default function Home() {
         memoText={sideMemoText}
         onMemoChange={setSideMemoText}
         isHearingComplete={["title", "agenda", "company", "threeSteps", "hearing", "simulation", "solution", "closing"].includes(phase)}
+        currentPhase={phase}
+        currentSubStep={subStep}
       />
 
       {/* メインコンテンツラップ (ズーム適用) */}

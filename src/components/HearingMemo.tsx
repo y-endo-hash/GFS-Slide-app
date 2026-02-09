@@ -15,6 +15,8 @@ interface HearingMemoProps {
     memoText: string;
     onMemoChange: (text: string) => void;
     isHearingComplete: boolean;
+    currentPhase?: string;
+    currentSubStep?: number | string;
 }
 
 export default function HearingMemo({
@@ -24,7 +26,9 @@ export default function HearingMemo({
     onToggle,
     memoText,
     onMemoChange,
-    isHearingComplete
+    isHearingComplete,
+    currentPhase,
+    currentSubStep
 }: HearingMemoProps) {
     const [activeTab, setActiveTab] = useState<"summary" | "memo">("memo");
     const [isRateVisible, setIsRateVisible] = useState(false);
@@ -127,6 +131,9 @@ export default function HearingMemo({
                         isOpen={true}
                         onToggle={() => pipWindow.close()}
                         isStandalone={true}
+                        currentPhase={currentPhase as any}
+                        currentSubStep={currentSubStep}
+                        simulationResult={simulationResult}
                     />
                 </div>
             );

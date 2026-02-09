@@ -24,15 +24,17 @@ interface SupportPanelProps {
     isOpen: boolean;
     onToggle: () => void;
     isStandalone?: boolean;
+    currentPhase?: Phase;
+    currentSubStep?: number | string;
+    simulationResult?: SimulationResult | null;
 }
 
-export default function SupportPanel({ userData: initialUserData, isOpen, onToggle, isStandalone = false }: SupportPanelProps) {
+export default function SupportPanel({ userData: initialUserData, isOpen, onToggle, isStandalone = false, currentPhase: mainPhase, currentSubStep: mainSubStep, simulationResult: mainSimulationResult }: SupportPanelProps) {
     const [activeTab, setActiveTab] = useState<"glossary" | "qa" | "roadmap">("roadmap");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
-    const [currentPhase, setCurrentPhase] = useState<Phase>("agenda");
-    const [subStep, setSubStep] = useState<number | string>(0);
-    const [liveSubStep, setLiveSubStep] = useState<number | string>(0);
+    const [currentPhase, setCurrentPhase] = useState<Phase>(mainPhase || "agenda");
+    const [subStep, setSubStep] = useState<number | string>(mainSubStep || 0);
     const [selectedPreview, setSelectedPreview] = useState<'live' | 'explorer' | null>(null);
     const [explorerPhase, setExplorerPhase] = useState<Phase>("agenda");
     const [explorerSubStep, setExplorerSubStep] = useState<number | string>(0);
@@ -141,10 +143,8 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
 
     const handlePhaseChange = (phase: Phase, mode: 'live' | 'explorer', targetSubStep: number | string = 0) => {
         if (mode === 'live') {
-            setCurrentPhase(phase);
-            setLiveSubStep(targetSubStep);
-            setSubStep(targetSubStep);
-            // DO NOT sync phase change back to main app
+            // LIVE mode: do not change state, it's read-only and synced from main
+            return;
         } else {
             // Smooth transition for explorer
             setIsTransitioning(true);
@@ -294,12 +294,12 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                             <div className="aspect-video bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
                                                 <div className="w-[1000px] shrink-0 pt-10 pb-40" style={{ zoom: 0.4 }}>
                                                     {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData} isPreview />}
-                                                    {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof liveSubStep === 'number' ? liveSubStep : 0} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
+                                                    {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof subStep === 'number' ? subStep : 0} onSubStepChange={(s) => { }} />}
                                                     {currentPhase === "threeSteps" && <Phase1ThreeSteps isPreview />}
-                                                    {currentPhase === "hearing" && <Phase1Hearing onSubmit={(d) => handleHearingSubmit(d, 'live')} onBack={() => handlePhaseChange("threeSteps", 'live')} onGoToAgenda={() => handlePhaseChange("agenda", 'live')} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
-                                                    {currentPhase === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
-                                                    {currentPhase === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
-                                                    {currentPhase === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={liveSubStep} onSubStepChange={(s) => handlePhaseChange(currentPhase, 'live', s)} />}
+                                                    {currentPhase === "hearing" && <Phase1Hearing onSubmit={(d) => { }} onBack={() => { }} onGoToAgenda={() => { }} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                    {currentPhase === "simulation" && <Phase3Simulation userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                    {currentPhase === "solution" && <Phase4Solution userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
+                                                    {currentPhase === "closing" && <Phase5Closing userData={userData} simulationResult={simulationResult || undefined} isPreview subStep={subStep} onSubStepChange={(s) => { }} />}
                                                 </div>
                                                 <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/5 to-transparent pointer-events-none sticky top-[100%]" />
 

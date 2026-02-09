@@ -66,11 +66,19 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
         if (initialUserData) setUserData(initialUserData);
     }, [initialUserData]);
 
-
-    // Sync from props
     useEffect(() => {
-        if (initialUserData) setUserData(initialUserData);
-    }, [initialUserData]);
+        if (mainSimulationResult !== undefined) setSimulationResult(mainSimulationResult);
+    }, [mainSimulationResult]);
+
+    // メイン画面の状態をLIVE画面に同期
+    useEffect(() => {
+        if (mainPhase !== undefined) {
+            setCurrentPhase(mainPhase);
+        }
+        if (mainSubStep !== undefined) {
+            setSubStep(mainSubStep);
+        }
+    }, [mainPhase, mainSubStep]);
 
 
     const phases: { id: Phase; title: string; desc: string; hideInTimeline?: boolean }[] = [
@@ -293,9 +301,9 @@ export default function SupportPanel({ userData: initialUserData, isOpen, onTogg
                                         <div className={cn(
                                             "bg-white rounded-[2rem] border-2 shadow-2xl overflow-hidden transition-all duration-300 relative group/live mx-auto",
                                             selectedPreview === 'live' ? "border-blue-600 shadow-blue-100 ring-4 ring-blue-600/20" : "border-red-500 shadow-red-100"
-                                        )} style={{ width: '450px', aspectRatio: '19.5/9' }}>
+                                        )} style={{ width: '100%', maxWidth: '400px', aspectRatio: '19.5/9' }}>
                                             <div className="h-full bg-slate-100 relative overflow-y-auto custom-scrollbar flex justify-center">
-                                                <div className="w-[1000px] shrink-0 pt-4 pb-20" style={{ zoom: 0.45 }}>
+                                                <div className="w-[1200px] shrink-0 pt-4 pb-20" style={{ zoom: 0.3 }}>
                                                     {currentPhase === "title" && <TitleScreen onStart={() => { }} />}
                                                     {currentPhase === "agenda" && <Agenda onGoToPhase={(p) => handlePhaseChange(p, 'live')} userData={userData} isPreview />}
                                                     {currentPhase === "company" && <Phase2CompanyIntro userData={userData} isPreview subStep={typeof subStep === 'number' ? subStep : 0} onSubStepChange={(s) => { }} />}

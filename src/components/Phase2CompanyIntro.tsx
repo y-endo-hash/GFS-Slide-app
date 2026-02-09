@@ -1415,40 +1415,46 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                                             )}
 
                                             {renderSlide(slide)}
+
+                                            {/* スライド内部のナビゲーション矢印 */}
+                                            {index === currentSlide && (
+                                                <>
+                                                    {/* 左矢印 */}
+                                                    <div
+                                                        className="absolute left-0 top-0 bottom-0 w-24 z-40 flex items-center justify-start pl-6 cursor-pointer group/nav-left"
+                                                        onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                                                    >
+                                                        <div className="p-4 bg-white/10 opacity-0 group-hover/nav-left:opacity-100 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl group-hover/nav-left:translate-x-2">
+                                                            <ChevronLeft className={`w-8 h-8 ${slide.type === 'custom' ? 'text-white' : 'text-gray-800'}`} />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 右矢印 */}
+                                                    <div
+                                                        className="absolute right-0 top-0 bottom-0 w-24 z-40 flex items-center justify-end pr-6 cursor-pointer group/nav-right"
+                                                        onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                                                    >
+                                                        <div className="p-4 bg-white/10 opacity-0 group-hover/nav-right:opacity-100 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl group-hover/nav-right:-translate-x-2">
+                                                            <ChevronRight className={`w-8 h-8 ${slide.type === 'custom' ? 'text-white' : 'text-gray-800'}`} />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* スタイリッシュなナビゲーション（スライド内） */}
-                            <div className="absolute inset-0 z-30 pointer-events-none group/nav-arrows">
-                                {/* 左矢印 */}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full border border-white/20 text-white opacity-0 group-hover/intro-container:opacity-100 transition-all duration-300 pointer-events-auto transform -translate-x-4 group-hover/intro-container:translate-x-0"
-                                    aria-label="前のスライド"
-                                >
-                                    <ChevronLeft className="w-8 h-8" />
-                                </button>
-
-                                {/* 右矢印 */}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full border border-white/20 text-white opacity-0 group-hover/intro-container:opacity-100 transition-all duration-300 pointer-events-auto transform translate-x-4 group-hover/intro-container:translate-x-0"
-                                    aria-label="次のスライド"
-                                >
-                                    <ChevronRight className="w-8 h-8" />
-                                </button>
-
-                                {/* 下部インジケーター */}
-                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover/intro-container:opacity-100 transition-all duration-500 pointer-events-auto">
+                            {/* ナビゲーション（ページネーションのみ） */}
+                            <div className="flex items-center justify-center p-6 bg-white border-t border-gray-100 relative">
+                                <div className="flex items-center gap-3">
                                     {slides.map((_, index) => (
                                         <button
                                             key={index}
-                                            onClick={(e) => { e.stopPropagation(); goToSlide(index); }}
-                                            className={`transition-all duration-300 ${index === currentSlide
-                                                ? "w-8 h-1.5 bg-white rounded-full shadow-lg shadow-white/20"
-                                                : "w-2 h-1.5 bg-white/40 rounded-full hover:bg-white/60"
+                                            onClick={() => goToSlide(index)}
+                                            className={`transition-all duration-500 ${index === currentSlide
+                                                ? "w-10 h-2.5 bg-primary rounded-full shadow-lg shadow-primary/20"
+                                                : "w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-300"
                                                 }`}
                                             aria-label={`スライド${index + 1}へ`}
                                         />
@@ -1483,84 +1489,84 @@ export default function Phase2CompanyIntro({ userData, onNext, onBack, onGoToAge
                         </Button>
                     </div>
                 </div>
-
-                {/* 会社の外観オーバーレイ */}
-                {showExteriorOverlay && (
-                    <div
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 p-4 md:p-8 cursor-pointer"
-                        onClick={() => setShowExteriorOverlay(false)}
-                    >
-                        <div className="relative w-full max-w-5xl h-full max-h-[90vh] flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
-                            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
-                                <Image
-                                    src="/images/company_exterior.jpg"
-                                    alt="会社の外観 大画像"
-                                    fill
-                                    className="object-contain"
-                                    priority
-                                />
-                            </div>
-                            <button
-                                className="mt-6 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/30 font-bold transition-all"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowExteriorOverlay(false);
-                                }}
-                            >
-                                閉じる
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* 全画面オーバーレイ（前の仕様を復元・拡張） */}
-                {isFullScreen && (
-                    <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center animate-in fade-in duration-500">
-                        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black opacity-90"></div>
-
-                        {/* 閉じるボタン */}
-                        <button
-                            onClick={() => setIsFullScreen(false)}
-                            className="absolute top-8 right-8 z-[130] p-4 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-xl border border-white/20 transition-all group"
-                        >
-                            <X className="w-8 h-8 text-white group-hover:rotate-90 transition-transform" />
-                        </button>
-
-                        {/* 左右ナビゲーションエリア */}
-                        <div
-                            className="absolute left-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
-                            onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-                        >
-                            <div className="absolute left-12 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
-                                <ChevronLeft className="w-12 h-12 text-white/50" />
-                            </div>
-                        </div>
-                        <div
-                            className="absolute right-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
-                            onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-                        >
-                            <div className="absolute right-12 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
-                                <ChevronRight className="w-12 h-12 text-white/50" />
-                            </div>
-                        </div>
-
-                        {/* スライド本体 */}
-                        <div className="relative w-full h-full overflow-hidden animate-in zoom-in-95 duration-500">
-                            {renderSlide(slides[currentSlide])}
-                        </div>
-
-                        {/* 下部ページネーション */}
-                        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-[125]">
-                            {slides.map((_, i) => (
-                                <div
-                                    key={i}
-                                    className={`h-2 transition-all duration-500 rounded-full ${i === currentSlide ? "w-12 bg-white" : "w-4 bg-white/30"}`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
             </div>
+
+            {/* 会社の外観オーバーレイ */}
+            {showExteriorOverlay && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 p-4 md:p-8 cursor-pointer"
+                    onClick={() => setShowExteriorOverlay(false)}
+                >
+                    <div className="relative w-full max-w-5xl h-full max-h-[90vh] flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
+                            <Image
+                                src="/images/company_exterior.jpg"
+                                alt="会社の外観 大画像"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <button
+                            className="mt-6 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/30 font-bold transition-all"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowExteriorOverlay(false);
+                            }}
+                        >
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 全画面オーバーレイ（前の仕様を復元・拡張） */}
+            {isFullScreen && (
+                <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center animate-in fade-in duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black opacity-90"></div>
+
+                    {/* 閉じるボタン */}
+                    <button
+                        onClick={() => setIsFullScreen(false)}
+                        className="absolute top-8 right-8 z-[130] p-4 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-xl border border-white/20 transition-all group"
+                    >
+                        <X className="w-8 h-8 text-white group-hover:rotate-90 transition-transform" />
+                    </button>
+
+                    {/* 左右ナビゲーションエリア */}
+                    <div
+                        className="absolute left-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
+                        onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                    >
+                        <div className="absolute left-12 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
+                            <ChevronLeft className="w-12 h-12 text-white/50" />
+                        </div>
+                    </div>
+                    <div
+                        className="absolute right-0 top-0 w-1/4 h-full z-[120] cursor-pointer group/nav"
+                        onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                    >
+                        <div className="absolute right-12 top-1/2 -translate-y-1/2 p-4 bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-all rounded-full backdrop-blur-sm border border-white/10">
+                            <ChevronRight className="w-12 h-12 text-white/50" />
+                        </div>
+                    </div>
+
+                    {/* スライド本体 */}
+                    <div className="relative w-full h-full overflow-hidden animate-in zoom-in-95 duration-500">
+                        {renderSlide(slides[currentSlide])}
+                    </div>
+
+                    {/* 下部ページネーション */}
+                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-[125]">
+                        {slides.map((_, i) => (
+                            <div
+                                key={i}
+                                className={`h-2 transition-all duration-500 rounded-full ${i === currentSlide ? "w-12 bg-white" : "w-4 bg-white/30"}`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

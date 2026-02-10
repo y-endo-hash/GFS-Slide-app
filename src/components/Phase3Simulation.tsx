@@ -367,7 +367,7 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
 
                                                 {/* 短縮期間のバッジ */}
                                                 {timeSaved > 0 && (
-                                                    <div className="absolute left-[85%] -top-6 bg-amber-400 text-blue-950 font-black px-3 py-1 rounded-xl text-sm shadow-2xl animate-float whitespace-nowrap z-30 ring-4 ring-white">
+                                                    <div className="absolute left-[85%] -top-2 bg-amber-400 text-blue-950 font-black px-3 py-1 rounded-xl text-sm shadow-2xl animate-float whitespace-nowrap z-30 ring-4 ring-white">
                                                         -{timeSaved}年 短縮！
                                                     </div>
                                                 )}

@@ -100,8 +100,12 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
         gap = 0,
         isGapNegative = false,
         chartData = [],
-        fullChartData = []
+        fullChartData = [],
+        achievedYear = null
     } = simulationResult || {};
+
+    const timeToGoal = achievedYear !== null ? achievedYear : userData.targetPeriod;
+    const timeSaved = userData.targetPeriod - timeToGoal;
 
     const investmentSteps = [
         {
@@ -354,12 +358,19 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                     <div className="text-center relative">
                                         {/* 背景の装飾演出 */}
                                         <div className="absolute -left-12 -top-12 flex flex-col items-center gap-2 animate-in fade-in slide-in-from-left-8 duration-1000 z-20">
-                                            <div className="bg-white/90 backdrop-blur shadow-2xl border border-blue-100 rounded-2xl p-4 min-w-[160px] transform transition-transform cursor-default ring-4 ring-blue-500/20">
+                                            <div className="bg-white/90 backdrop-blur shadow-2xl border border-blue-100 rounded-2xl p-4 min-w-[160px] transform transition-transform cursor-default ring-4 ring-blue-500/20 relative">
                                                 <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Time to Goal</p>
                                                 <p className="text-4xl font-black text-slate-900 leading-none">
-                                                    {(simulationResult?.achievedYear !== undefined ? simulationResult.achievedYear : userData.targetPeriod) || 0}<span className="text-sm ml-1">年</span>
+                                                    {timeToGoal}<span className="text-sm ml-1">年</span>
                                                 </p>
                                                 <p className="text-[10px] font-bold text-slate-400 mt-1">目標達成までの期間</p>
+
+                                                {/* 短縮期間のバッジ */}
+                                                {timeSaved > 0 && (
+                                                    <div className="absolute -right-20 -top-10 bg-amber-400 text-blue-950 font-black px-4 py-1.5 rounded-xl text-lg shadow-2xl animate-float whitespace-nowrap z-30 ring-4 ring-white">
+                                                        当初の予定より -{timeSaved}年短縮！
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full"></div>

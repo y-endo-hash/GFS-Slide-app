@@ -341,8 +341,8 @@ export default function Phase3Simulation({ userData, simulationResult, onNext, o
                                             <TrendingUp className="w-10 h-10 text-blue-950" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-none drop-shadow-md whitespace-nowrap">{(userData.name || "あなた")}様が投資で運用した場合のシミュレーション</h3>
-                                            <p className="text-blue-100 font-bold text-lg mt-2 opacity-90">利回り20％で運用した場合の効率的な資産形成</p>
+                                            <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-none drop-shadow-md whitespace-nowrap">{(userData.name || "あなた")}様が投資(20％)で運用した場合の資産予測</h3>
+                                            <p className="text-blue-100 font-bold text-lg mt-2 opacity-90">複利の力を最大限に活かした、理想的な資産推移のシミュレーション</p>
                                         </div>
                                         <div className="ml-auto hidden md:block">
                                             <Image src="/mascot/mascot_cheer_pink.png" alt="" width={100} height={100} className="animate-float-slow" />
